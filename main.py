@@ -1,4 +1,6 @@
 import os
+import time
+from datetime import datetime
 
 import numpy as np
 import tensorflow as tf
@@ -17,7 +19,8 @@ class Generator:
     def __init__(self, batch_size):
         self.z_dim = 100
         self.batch_size = batch_size
-        self.output = self.model(tf.placeholder(tf.float32, [None, self.z_dim], name='z'), reuse=None)
+        self.z = tf.placeholder(tf.float32, [None, self.z_dim], name='z')
+        self.output = self.model(self.z, reuse=None)
 
     def model(self, z, reuse=True):
         with tf.variable_scope('g', reuse=reuse):
@@ -105,49 +108,57 @@ class Discriminator:
         return linear
 
 class DCGAN:
-    def __init__(self, sess):
+    def __init__(self):
         self.batch_size = 128
-        self.sess = sess
         self.g = Generator(self.batch_size)
         self.d = Discriminator()
-        # build
-        files = [os.path.join(FLAGS.data_dir, f) for f in os.listdir(os.path.join(FLAGS.data_dir)) if f.endswith('.tfrecords')]
-        logits_from_i = self.d.model(self.inputs(files))
+
+    def train(self, inputs):
+        logits_from_i = self.d.model(inputs)
         logits_from_g = self.d.model(self.g.output)
-        d_loss_1 = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))
-        d_loss_0 = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))
-        g_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g))
-        d_loss = d_loss_0 + d_loss_1
+        d_loss_i = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))
+        d_loss_g = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))
+        g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g)))
+        d_loss = tf.reduce_mean(d_loss_i + d_loss_g)
         g_vars = [v for v in tf.trainable_variables() if v.name.startswith('g')]
         d_vars = [v for v in tf.trainable_variables() if v.name.startswith('d')]
-        g_optimizer = tf.train.AdamOptimizer().minimize(g_loss, var_list=g_vars)
-        d_optimizer = tf.train.AdamOptimizer().minimize(d_loss, var_list=d_vars)
+        g_optimizer = tf.train.AdamOptimizer(learning_rate=0.0002, beta1=0.5).minimize(g_loss, var_list=g_vars)
+        d_optimizer = tf.train.AdamOptimizer(learning_rate=0.0002, beta1=0.5).minimize(d_loss, var_list=d_vars)
         with tf.control_dependencies([g_optimizer, d_optimizer]):
-            self.train_op = tf.no_op(name='train')
+            train_op = tf.no_op(name='train')
+        return train_op, g_loss, d_loss
 
     def inputs(self, files):
         fqueue = tf.train.string_input_producer(files)
         reader = tf.TFRecordReader()
-        key, value = reader.read(fqueue)
+        _, value = reader.read(fqueue)
         features = tf.parse_single_example(value, features={'image_raw': tf.FixedLenFeature([], tf.string)})
         image = tf.cast(tf.image.decode_jpeg(features['image_raw'], channels=3), tf.float32)
         image.set_shape([IMAGE_SIZE, IMAGE_SIZE, 3])
 
         min_queue_examples = FLAGS.num_examples_per_epoch_for_train
         images = tf.train.shuffle_batch(
-            [tf.image.per_image_whitening(image)],
+            [image],
             batch_size=self.g.batch_size,
-            capacity=min_queue_examples + 3 * self.g.batch_size,
+            capacity=min_queue_examples + 3 * self.batch_size,
             min_after_dequeue=min_queue_examples
         )
-        return tf.image.resize_images(images, 64, 64)
+        return tf.sub(tf.div(tf.image.resize_images(images, 64, 64), 127.5), 1.0)
 
 def main(argv=None):
+    dcgan = DCGAN()
+    inputs = dcgan.inputs([os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')])
+    train_op, g_loss, d_loss = dcgan.train(inputs)
     with tf.Session() as sess:
-        dcgan = DCGAN(sess)
-        print dcgan.train_op
-        for v in tf.all_variables():
-            print v.name
-        print '%s ops' % len(sess.graph.get_operations())
+        sess.run(tf.initialize_all_variables())
+        tf.train.start_queue_runners(sess=sess)
+
+        for step in range(100):
+            start_time = time.time()
+            _, g_loss_value, d_loss_value = sess.run([train_op, g_loss, d_loss], feed_dict={dcgan.g.z: np.random.uniform(-1, 1, size=(dcgan.batch_size, dcgan.g.z_dim))})
+            duration = time.time() - start_time
+            format_str = '%s: step %d, loss = (G: %.8f, D: %.8f) (%.3f sec/batch)'
+            print format_str % (datetime.now(), step, g_loss_value, d_loss_value, duration)
+
 if __name__ == '__main__':
     tf.app.run()
