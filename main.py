@@ -6,17 +6,21 @@ import tensorflow as tf
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', 'train',
                            """Directory where to write event logs and checkpoint.""")
+tf.app.flags.DEFINE_string('data_dir', 'data',
+                           """Path to the TFRecord data directory.""")
+tf.app.flags.DEFINE_integer('num_examples_per_epoch_for_train', 1000,
+                            """number of examples for train""")
+
+IMAGE_SIZE = 112
 
 class Generator:
-    def __init__(self):
+    def __init__(self, batch_size):
         self.z_dim = 100
-        self.batch_size = 128
+        self.batch_size = batch_size
+        self.output = self.model(tf.placeholder(tf.float32, [None, self.z_dim], name='z'), reuse=None)
 
-        self.z = tf.placeholder(tf.float32, [None, self.z_dim], name='z')
-        self.output = self.model(self.z)
-
-    def model(self, z):
-        with tf.variable_scope('generator'):
+    def model(self, z, reuse=True):
+        with tf.variable_scope('g', reuse=reuse):
             with tf.variable_scope('conv1'):
                 w1 = tf.get_variable('weights', [self.z_dim, 1024 * 4 * 4], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b1 = tf.get_variable('biases', [1024], tf.float32, tf.zeros_initializer)
@@ -63,10 +67,10 @@ class Generator:
 
 class Discriminator:
     def __init__(self):
-        self.batch_size = 128
+        self.model(tf.placeholder(tf.float32, [None, 64, 64, 3]), reuse=None)
 
-    def model(self, images):
-        with tf.variable_scope('discriminator'):
+    def model(self, images, reuse=True):
+        with tf.variable_scope('d', reuse=reuse):
             with tf.variable_scope('conv1'):
                 w1 = tf.get_variable('weights', [5, 5, 3, 64], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b1 = tf.get_variable('biases', [64], tf.float32, tf.zeros_initializer)
@@ -97,30 +101,53 @@ class Discriminator:
                 w5 = tf.get_variable('weights', [dim, 1], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b5 = tf.get_variable('biases', [1], tf.float32, tf.zeros_initializer)
                 linear = tf.nn.bias_add(tf.matmul(tf.reshape(lrelu4, [-1, dim]), w5), b5)
-                out = tf.sigmoid(linear)
 
-        return out
+        return linear
 
 class DCGAN:
     def __init__(self, sess):
+        self.batch_size = 128
         self.sess = sess
-        self.g = Generator()
+        self.g = Generator(self.batch_size)
         self.d = Discriminator()
+        # build
+        files = [os.path.join(FLAGS.data_dir, f) for f in os.listdir(os.path.join(FLAGS.data_dir)) if f.endswith('.tfrecords')]
+        logits_from_i = self.d.model(self.inputs(files))
+        logits_from_g = self.d.model(self.g.output)
+        d_loss_1 = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))
+        d_loss_0 = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))
+        g_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g))
+        d_loss = d_loss_0 + d_loss_1
+        g_vars = [v for v in tf.trainable_variables() if v.name.startswith('g')]
+        d_vars = [v for v in tf.trainable_variables() if v.name.startswith('d')]
+        g_optimizer = tf.train.AdamOptimizer().minimize(g_loss, var_list=g_vars)
+        d_optimizer = tf.train.AdamOptimizer().minimize(d_loss, var_list=d_vars)
+        with tf.control_dependencies([g_optimizer, d_optimizer]):
+            self.train_op = tf.no_op(name='train')
 
-    def initialize(self):
-        self.sess.run(tf.initialize_all_variables())
+    def inputs(self, files):
+        fqueue = tf.train.string_input_producer(files)
+        reader = tf.TFRecordReader()
+        key, value = reader.read(fqueue)
+        features = tf.parse_single_example(value, features={'image_raw': tf.FixedLenFeature([], tf.string)})
+        image = tf.cast(tf.image.decode_jpeg(features['image_raw'], channels=3), tf.float32)
+        image.set_shape([IMAGE_SIZE, IMAGE_SIZE, 3])
 
-    def train(self):
-        return self.d.model(self.g.output)
+        min_queue_examples = FLAGS.num_examples_per_epoch_for_train
+        images = tf.train.shuffle_batch(
+            [tf.image.per_image_whitening(image)],
+            batch_size=self.g.batch_size,
+            capacity=min_queue_examples + 3 * self.g.batch_size,
+            min_after_dequeue=min_queue_examples
+        )
+        return tf.image.resize_images(images, 64, 64)
 
 def main(argv=None):
     with tf.Session() as sess:
         dcgan = DCGAN(sess)
-
-        z = np.random.uniform(-1, 1, size=(dcgan.g.batch_size, dcgan.g.z_dim))
-        a = dcgan.train()
-        dcgan.initialize()
-        print sess.run(a, feed_dict={dcgan.g.z: z})
-
+        print dcgan.train_op
+        for v in tf.all_variables():
+            print v.name
+        print '%s ops' % len(sess.graph.get_operations())
 if __name__ == '__main__':
     tf.app.run()
