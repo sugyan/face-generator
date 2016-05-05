@@ -32,6 +32,7 @@ class Generator:
                 bn1 = tf.nn.batch_normalization(dc1, mean1, variance1, None, None, 1e-5)
                 relu1 = tf.nn.relu(bn1)
                 tf.scalar_summary(relu1.op.name + '/sparsity', tf.nn.zero_fraction(relu1))
+                tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w1), 0.00001))
 
             with tf.variable_scope('conv2'):
                 w2 = tf.get_variable('weights', [5, 5, 512, 1024], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
@@ -41,6 +42,7 @@ class Generator:
                 bn2 = tf.nn.batch_normalization(dc2, mean2, variance2, None, None, 1e-5)
                 relu2 = tf.nn.relu(bn2)
                 tf.scalar_summary(relu2.op.name + '/sparsity', tf.nn.zero_fraction(relu2))
+                tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w2), 0.00001))
 
             with tf.variable_scope('conv3'):
                 w3 = tf.get_variable('weights', [5, 5, 256, 512], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
@@ -50,6 +52,7 @@ class Generator:
                 bn3 = tf.nn.batch_normalization(dc3, mean3, variance3, None, None, 1e-5)
                 relu3 = tf.nn.relu(bn3)
                 tf.scalar_summary(relu3.op.name + '/sparsity', tf.nn.zero_fraction(relu3))
+                tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w3), 0.00001))
 
             with tf.variable_scope('conv4'):
                 w4 = tf.get_variable('weights', [5, 5, 128, 256], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
@@ -59,12 +62,14 @@ class Generator:
                 bn4 = tf.nn.batch_normalization(dc4, mean4, variance4, None, None, 1e-5)
                 relu4 = tf.nn.relu(bn4)
                 tf.scalar_summary(relu4.op.name + '/sparsity', tf.nn.zero_fraction(relu4))
+                tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w4), 0.00001))
 
             with tf.variable_scope('output'):
                 w5 = tf.get_variable('weights', [5, 5, 3, 128], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b5 = tf.get_variable('biases', [3], tf.float32, tf.zeros_initializer)
                 dc5 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu4, w5, [self.batch_size, 64, 64, 3], [1, 2, 2, 1]), b5)
                 out = tf.nn.tanh(dc5)
+                tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w5), 0.00001))
 
         return out
 
@@ -79,24 +84,29 @@ class Discriminator:
                 b1 = tf.get_variable('biases', [64], tf.float32, tf.zeros_initializer)
                 c1 = tf.nn.bias_add(tf.nn.conv2d(images, w1, [1, 2, 2, 1], padding='SAME'), b1)
                 lrelu1 = tf.maximum(0.2 * c1, c1)
+                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w1), 0.00001))
 
             with tf.variable_scope('conv2'):
                 w2 = tf.get_variable('weights', [5, 5, 64, 128], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b2 = tf.get_variable('biases', [128], tf.float32, tf.zeros_initializer)
                 c2 = tf.nn.bias_add(tf.nn.conv2d(lrelu1, w2, [1, 2, 2, 1], padding='SAME'), b2)
                 lrelu2 = tf.maximum(0.2 * c2, c2)
+                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w2), 0.00001))
 
             with tf.variable_scope('conv3'):
                 w3 = tf.get_variable('weights', [5, 5, 128, 256], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b3 = tf.get_variable('biases', [256], tf.float32, tf.zeros_initializer)
                 c3 = tf.nn.bias_add(tf.nn.conv2d(lrelu2, w3, [1, 2, 2, 1], padding='SAME'), b3)
                 lrelu3 = tf.maximum(0.2 * c3, c3)
+                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w3), 0.00001))
 
             with tf.variable_scope('conv4'):
                 w4 = tf.get_variable('weights', [5, 5, 256, 512], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b4 = tf.get_variable('biases', [512], tf.float32, tf.zeros_initializer)
                 c4 = tf.nn.bias_add(tf.nn.conv2d(lrelu3, w4, [1, 2, 2, 1], padding='SAME'), b4)
                 lrelu4 = tf.maximum(0.2 * c4, c4)
+                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w4), 0.00001))
+
             with tf.variable_scope('output'):
                 dim = 1
                 for d in lrelu4.get_shape()[1:].as_list():
@@ -104,6 +114,7 @@ class Discriminator:
                 w5 = tf.get_variable('weights', [dim, 1], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b5 = tf.get_variable('biases', [1], tf.float32, tf.zeros_initializer)
                 linear = tf.nn.bias_add(tf.matmul(tf.reshape(lrelu4, [-1, dim]), w5), b5)
+                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w5), 0.00001))
 
         return linear
 
@@ -116,10 +127,11 @@ class DCGAN:
     def train(self, inputs):
         logits_from_i = self.d.model(inputs)
         logits_from_g = self.d.model(self.g.output)
-        d_loss_i = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))
-        d_loss_g = tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))
-        g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g)))
-        d_loss = tf.reduce_mean(d_loss_i + d_loss_g)
+        tf.add_to_collection('g_losses', tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g))))
+        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))))
+        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))))
+        g_loss = tf.add_n(tf.get_collection('g_losses'), name='total_g_loss')
+        d_loss = tf.add_n(tf.get_collection('d_losses'), name='total_d_loss')
         g_vars = [v for v in tf.trainable_variables() if v.name.startswith('g')]
         d_vars = [v for v in tf.trainable_variables() if v.name.startswith('d')]
         g_optimizer = tf.train.AdamOptimizer(learning_rate=0.0002, beta1=0.5).minimize(g_loss, var_list=g_vars)
