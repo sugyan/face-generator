@@ -113,10 +113,11 @@ class Discriminator:
                     dim *= d
                 w5 = tf.get_variable('weights', [dim, 1], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b5 = tf.get_variable('biases', [1], tf.float32, tf.zeros_initializer)
-                linear = tf.nn.bias_add(tf.matmul(tf.reshape(lrelu4, [-1, dim]), w5), b5)
+                l = tf.nn.bias_add(tf.matmul(tf.reshape(lrelu4, [-1, dim]), w5), b5)
+                out = tf.sigmoid(l)
                 tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w5), 0.00001))
 
-        return linear
+        return out
 
 class DCGAN:
     def __init__(self):
@@ -127,9 +128,9 @@ class DCGAN:
     def train(self, inputs):
         logits_from_i = self.d.model(inputs)
         logits_from_g = self.d.model(self.g.output)
-        tf.add_to_collection('g_losses', tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g))))
-        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))))
-        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))))
+        tf.add_to_collection('g_losses', tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g))))
+        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))))
+        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))))
         g_loss = tf.add_n(tf.get_collection('g_losses'), name='total_g_loss')
         d_loss = tf.add_n(tf.get_collection('d_losses'), name='total_d_loss')
         g_vars = [v for v in tf.trainable_variables() if v.name.startswith('g')]
