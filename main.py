@@ -158,6 +158,9 @@ class DCGAN:
         )
         return tf.sub(tf.div(tf.image.resize_images(images, 64, 64), 127.5), 1.0)
 
+    def generate(self):
+        return tf.cast(tf.mul(tf.add(self.g.output, 1.0), 127.5), tf.uint8)
+
 def main(argv=None):
     dcgan = DCGAN()
     inputs = dcgan.inputs([os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')])
