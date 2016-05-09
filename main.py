@@ -158,23 +158,31 @@ class DCGAN:
         )
         return tf.sub(tf.div(tf.image.resize_images(images, 64, 64), 127.5), 1.0)
 
-    def generate(self):
-        return tf.cast(tf.mul(tf.add(self.g.output, 1.0), 127.5), tf.uint8)
+    def generate_images(self, num):
+        images = tf.cast(tf.mul(tf.add(self.g.output, 1.0), 127.5), tf.uint8)
+        return map(lambda image: tf.image.encode_png(tf.squeeze(image, [0])), tf.split(0, self.batch_size, images)[0:num])
 
 def main(argv=None):
     dcgan = DCGAN()
     inputs = dcgan.inputs([os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')])
     train_op, g_loss, d_loss = dcgan.train(inputs)
+    images = dcgan.generate_images(9)
+
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
         tf.train.start_queue_runners(sess=sess)
 
         for step in range(100):
+            random = np.random.uniform(-1, 1, size=(dcgan.batch_size, dcgan.g.z_dim))
             start_time = time.time()
-            _, g_loss_value, d_loss_value = sess.run([train_op, g_loss, d_loss], feed_dict={dcgan.g.z: np.random.uniform(-1, 1, size=(dcgan.batch_size, dcgan.g.z_dim))})
+            _, g_loss_value, d_loss_value = sess.run([train_op, g_loss, d_loss], feed_dict={dcgan.g.z: random})
             duration = time.time() - start_time
             format_str = '%s: step %d, loss = (G: %.8f, D: %.8f) (%.3f sec/batch)'
             print format_str % (datetime.now(), step, g_loss_value, d_loss_value, duration)
+
+            for i, image in enumerate(sess.run(images, feed_dict={dcgan.g.z: random})):
+                with open('%i.png' % i, 'wb') as f:
+                    f.write(image)
 
 if __name__ == '__main__':
     tf.app.run()
