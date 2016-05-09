@@ -168,6 +168,7 @@ def main(argv=None):
     train_op, g_loss, d_loss = dcgan.train(inputs)
     images = dcgan.generate_images(9)
 
+    saver = tf.train.Saver(tf.all_variables())
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
         tf.train.start_queue_runners(sess=sess)
@@ -183,6 +184,10 @@ def main(argv=None):
             for i, image in enumerate(sess.run(images, feed_dict={dcgan.g.z: random})):
                 with open('%i.png' % i, 'wb') as f:
                     f.write(image)
+
+            if step % 10 == 0:
+                checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
+                saver.save(sess, checkpoint_path)
 
 if __name__ == '__main__':
     tf.app.run()
