@@ -10,10 +10,12 @@ tf.app.flags.DEFINE_string('train_dir', 'train',
                            """Directory where to write event logs and checkpoint.""")
 tf.app.flags.DEFINE_string('data_dir', 'data',
                            """Path to the TFRecord data directory.""")
-tf.app.flags.DEFINE_integer('num_examples_per_epoch_for_train', 1000,
+tf.app.flags.DEFINE_integer('num_examples_per_epoch_for_train', 10000,
                             """number of examples for train""")
+tf.app.flags.DEFINE_integer('max_steps', 5000,
+                            """Number of batches to run.""")
 
-IMAGE_SIZE = 112
+INPUT_IMAGE_SIZE = 112
 
 class Generator:
     def __init__(self, batch_size):
@@ -168,7 +170,7 @@ class DCGAN:
         _, value = reader.read(fqueue)
         features = tf.parse_single_example(value, features={'image_raw': tf.FixedLenFeature([], tf.string)})
         image = tf.cast(tf.image.decode_jpeg(features['image_raw'], channels=3), tf.float32)
-        image.set_shape([IMAGE_SIZE, IMAGE_SIZE, 3])
+        image.set_shape([INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, 3])
 
         min_queue_examples = FLAGS.num_examples_per_epoch_for_train
         images = tf.train.shuffle_batch(
@@ -200,7 +202,7 @@ def main(argv=None):
 
         tf.train.start_queue_runners(sess=sess)
 
-        for step in range(100):
+        for step in range(FLAGS.max_steps):
             random = np.random.uniform(-1, 1, size=(dcgan.batch_size, dcgan.g.z_dim))
             start_time = time.time()
             _, g_loss_value, d_loss_value = sess.run([train_op, g_loss, d_loss], feed_dict={dcgan.g.z: random})
