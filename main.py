@@ -25,11 +25,11 @@ class Generator:
     def model(self, z, reuse=True):
         with tf.variable_scope('g', reuse=reuse):
             with tf.variable_scope('conv1'):
-                w1 = tf.get_variable('weights', [self.z_dim, 1024 * 4 * 4], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
-                b1 = tf.get_variable('biases', [1024], tf.float32, tf.zeros_initializer)
-                beta1 = tf.get_variable('beta', [1024], tf.float32, tf.constant_initializer(0.0))
-                gamma1 = tf.get_variable('gamma', [1024], tf.float32, tf.constant_initializer(1.0))
-                dc1 = tf.nn.bias_add(tf.reshape(tf.matmul(z, w1), [-1, 4, 4, 1024]), b1)
+                w1 = tf.get_variable('weights', [self.z_dim, 512 * 4 * 4], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
+                b1 = tf.get_variable('biases', [512], tf.float32, tf.zeros_initializer)
+                beta1 = tf.get_variable('beta', [512], tf.float32, tf.constant_initializer(0.0))
+                gamma1 = tf.get_variable('gamma', [512], tf.float32, tf.constant_initializer(1.0))
+                dc1 = tf.nn.bias_add(tf.reshape(tf.matmul(z, w1), [-1, 4, 4, 512]), b1)
                 mean1, variance1 = tf.nn.moments(dc1, [0, 1, 2])
                 bn1 = tf.nn.batch_normalization(dc1, mean1, variance1, beta1, gamma1, 1e-5)
                 relu1 = tf.nn.relu(bn1)
@@ -37,11 +37,11 @@ class Generator:
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w1), 0.00001))
 
             with tf.variable_scope('conv2'):
-                w2 = tf.get_variable('weights', [5, 5, 512, 1024], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
-                b2 = tf.get_variable('biases', [512], tf.float32, tf.zeros_initializer)
-                beta2 = tf.get_variable('beta', [512], tf.float32, tf.constant_initializer(0.0))
-                gamma2 = tf.get_variable('gamma', [512], tf.float32, tf.constant_initializer(1.0))
-                dc2 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu1, w2, [self.batch_size, 8, 8, 512], [1, 2, 2, 1]), b2)
+                w2 = tf.get_variable('weights', [5, 5, 256, 512], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
+                b2 = tf.get_variable('biases', [256], tf.float32, tf.zeros_initializer)
+                beta2 = tf.get_variable('beta', [256], tf.float32, tf.constant_initializer(0.0))
+                gamma2 = tf.get_variable('gamma', [256], tf.float32, tf.constant_initializer(1.0))
+                dc2 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu1, w2, [self.batch_size, 8, 8, 256], [1, 2, 2, 1]), b2)
                 mean2, variance2 = tf.nn.moments(dc2, [0, 1, 2])
                 bn2 = tf.nn.batch_normalization(dc2, mean2, variance2, beta2, gamma2, 1e-5)
                 relu2 = tf.nn.relu(bn2)
@@ -49,11 +49,11 @@ class Generator:
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w2), 0.00001))
 
             with tf.variable_scope('conv3'):
-                w3 = tf.get_variable('weights', [5, 5, 256, 512], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
-                b3 = tf.get_variable('biases', [256], tf.float32, tf.zeros_initializer)
-                beta3 = tf.get_variable('beta', [256], tf.float32, tf.constant_initializer(0.0))
-                gamma3 = tf.get_variable('gamma', [256], tf.float32, tf.constant_initializer(1.0))
-                dc3 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu2, w3, [self.batch_size, 16, 16, 256], [1, 2, 2, 1]), b3)
+                w3 = tf.get_variable('weights', [5, 5, 128, 256], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
+                b3 = tf.get_variable('biases', [128], tf.float32, tf.zeros_initializer)
+                beta3 = tf.get_variable('beta', [128], tf.float32, tf.constant_initializer(0.0))
+                gamma3 = tf.get_variable('gamma', [128], tf.float32, tf.constant_initializer(1.0))
+                dc3 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu2, w3, [self.batch_size, 16, 16, 128], [1, 2, 2, 1]), b3)
                 mean3, variance3 = tf.nn.moments(dc3, [0, 1, 2])
                 bn3 = tf.nn.batch_normalization(dc3, mean3, variance3, beta3, gamma3, 1e-5)
                 relu3 = tf.nn.relu(bn3)
@@ -61,11 +61,11 @@ class Generator:
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w3), 0.00001))
 
             with tf.variable_scope('conv4'):
-                w4 = tf.get_variable('weights', [5, 5, 128, 256], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
-                b4 = tf.get_variable('biases', [128], tf.float32, tf.zeros_initializer)
-                beta4 = tf.get_variable('beta', [128], tf.float32, tf.constant_initializer(0.0))
-                gamma4 = tf.get_variable('gamma', [128], tf.float32, tf.constant_initializer(1.0))
-                dc4 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu3, w4, [self.batch_size, 32, 32, 128], [1, 2, 2, 1]), b4)
+                w4 = tf.get_variable('weights', [5, 5, 64, 128], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
+                b4 = tf.get_variable('biases', [64], tf.float32, tf.zeros_initializer)
+                beta4 = tf.get_variable('beta', [64], tf.float32, tf.constant_initializer(0.0))
+                gamma4 = tf.get_variable('gamma', [64], tf.float32, tf.constant_initializer(1.0))
+                dc4 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu3, w4, [self.batch_size, 32, 32, 64], [1, 2, 2, 1]), b4)
                 mean4, variance4 = tf.nn.moments(dc4, [0, 1, 2])
                 bn4 = tf.nn.batch_normalization(dc4, mean4, variance4, beta4, gamma4, 1e-5)
                 relu4 = tf.nn.relu(bn4)
@@ -73,11 +73,10 @@ class Generator:
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w4), 0.00001))
 
             with tf.variable_scope('output'):
-                w5 = tf.get_variable('weights', [5, 5, 3, 128], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
+                w5 = tf.get_variable('weights', [5, 5, 3, 64], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b5 = tf.get_variable('biases', [3], tf.float32, tf.zeros_initializer)
                 dc5 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu4, w5, [self.batch_size, 64, 64, 3], [1, 2, 2, 1]), b5)
                 out = tf.nn.tanh(dc5)
-                tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w5), 0.00001))
 
         return out
 
@@ -138,7 +137,6 @@ class Discriminator:
                 w5 = tf.get_variable('weights', [dim, 2], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b5 = tf.get_variable('biases', [2], tf.float32, tf.zeros_initializer)
                 out = tf.nn.bias_add(tf.matmul(tf.reshape(lrelu4, [-1, dim]), w5), b5)
-                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w5), 0.00001))
 
         return out
 
