@@ -27,13 +27,11 @@ class Generator:
     def model(self, z, reuse=True):
         with tf.variable_scope('g', reuse=reuse):
             with tf.variable_scope('conv1'):
-                w1 = tf.get_variable('weights', [self.z_dim, 512 * 4 * 4], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
+                w1 = tf.get_variable('weights', [self.z_dim, 512 * 6 * 6], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b1 = tf.get_variable('biases', [512], tf.float32, tf.zeros_initializer)
-                beta1 = tf.get_variable('beta', [512], tf.float32, tf.constant_initializer(0.0))
-                gamma1 = tf.get_variable('gamma', [512], tf.float32, tf.constant_initializer(1.0))
-                dc1 = tf.nn.bias_add(tf.reshape(tf.matmul(z, w1), [-1, 4, 4, 512]), b1)
+                dc1 = tf.nn.bias_add(tf.reshape(tf.matmul(z, w1), [-1, 6, 6, 512]), b1)
                 mean1, variance1 = tf.nn.moments(dc1, [0, 1, 2])
-                bn1 = tf.nn.batch_normalization(dc1, mean1, variance1, beta1, gamma1, 1e-5)
+                bn1 = tf.nn.batch_normalization(dc1, mean1, variance1, None, None, 1e-5)
                 relu1 = tf.nn.relu(bn1)
                 tf.scalar_summary(relu1.op.name + '/sparsity', tf.nn.zero_fraction(relu1))
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w1), 0.00001))
@@ -41,11 +39,9 @@ class Generator:
             with tf.variable_scope('conv2'):
                 w2 = tf.get_variable('weights', [5, 5, 256, 512], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b2 = tf.get_variable('biases', [256], tf.float32, tf.zeros_initializer)
-                beta2 = tf.get_variable('beta', [256], tf.float32, tf.constant_initializer(0.0))
-                gamma2 = tf.get_variable('gamma', [256], tf.float32, tf.constant_initializer(1.0))
-                dc2 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu1, w2, [self.batch_size, 8, 8, 256], [1, 2, 2, 1]), b2)
+                dc2 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu1, w2, [self.batch_size, 12, 12, 256], [1, 2, 2, 1]), b2)
                 mean2, variance2 = tf.nn.moments(dc2, [0, 1, 2])
-                bn2 = tf.nn.batch_normalization(dc2, mean2, variance2, beta2, gamma2, 1e-5)
+                bn2 = tf.nn.batch_normalization(dc2, mean2, variance2, None, None, 1e-5)
                 relu2 = tf.nn.relu(bn2)
                 tf.scalar_summary(relu2.op.name + '/sparsity', tf.nn.zero_fraction(relu2))
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w2), 0.00001))
@@ -53,11 +49,9 @@ class Generator:
             with tf.variable_scope('conv3'):
                 w3 = tf.get_variable('weights', [5, 5, 128, 256], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b3 = tf.get_variable('biases', [128], tf.float32, tf.zeros_initializer)
-                beta3 = tf.get_variable('beta', [128], tf.float32, tf.constant_initializer(0.0))
-                gamma3 = tf.get_variable('gamma', [128], tf.float32, tf.constant_initializer(1.0))
-                dc3 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu2, w3, [self.batch_size, 16, 16, 128], [1, 2, 2, 1]), b3)
+                dc3 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu2, w3, [self.batch_size, 24, 24, 128], [1, 2, 2, 1]), b3)
                 mean3, variance3 = tf.nn.moments(dc3, [0, 1, 2])
-                bn3 = tf.nn.batch_normalization(dc3, mean3, variance3, beta3, gamma3, 1e-5)
+                bn3 = tf.nn.batch_normalization(dc3, mean3, variance3, None, None, 1e-5)
                 relu3 = tf.nn.relu(bn3)
                 tf.scalar_summary(relu3.op.name + '/sparsity', tf.nn.zero_fraction(relu3))
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w3), 0.00001))
@@ -65,11 +59,9 @@ class Generator:
             with tf.variable_scope('conv4'):
                 w4 = tf.get_variable('weights', [5, 5, 64, 128], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b4 = tf.get_variable('biases', [64], tf.float32, tf.zeros_initializer)
-                beta4 = tf.get_variable('beta', [64], tf.float32, tf.constant_initializer(0.0))
-                gamma4 = tf.get_variable('gamma', [64], tf.float32, tf.constant_initializer(1.0))
-                dc4 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu3, w4, [self.batch_size, 32, 32, 64], [1, 2, 2, 1]), b4)
+                dc4 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu3, w4, [self.batch_size, 48, 48, 64], [1, 2, 2, 1]), b4)
                 mean4, variance4 = tf.nn.moments(dc4, [0, 1, 2])
-                bn4 = tf.nn.batch_normalization(dc4, mean4, variance4, beta4, gamma4, 1e-5)
+                bn4 = tf.nn.batch_normalization(dc4, mean4, variance4, None, None, 1e-5)
                 relu4 = tf.nn.relu(bn4)
                 tf.scalar_summary(relu4.op.name + '/sparsity', tf.nn.zero_fraction(relu4))
                 tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(w4), 0.00001))
@@ -77,60 +69,56 @@ class Generator:
             with tf.variable_scope('output'):
                 w5 = tf.get_variable('weights', [5, 5, 3, 64], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b5 = tf.get_variable('biases', [3], tf.float32, tf.zeros_initializer)
-                dc5 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu4, w5, [self.batch_size, 64, 64, 3], [1, 2, 2, 1]), b5)
+                dc5 = tf.nn.bias_add(tf.nn.conv2d_transpose(relu4, w5, [self.batch_size, 96, 96, 3], [1, 2, 2, 1]), b5)
                 out = tf.nn.tanh(dc5)
 
         return out
 
 class Discriminator:
     def __init__(self):
-        self.model(tf.placeholder(tf.float32, [None, 64, 64, 3]), reuse=None)
+        self.model(tf.placeholder(tf.float32, [None, 96, 96, 3]), reuse=None)
 
     def model(self, images, reuse=True):
         with tf.variable_scope('d', reuse=reuse):
             with tf.variable_scope('conv1'):
                 w1 = tf.get_variable('weights', [5, 5, 3, 64], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b1 = tf.get_variable('biases', [64], tf.float32, tf.zeros_initializer)
-                beta1 = tf.get_variable('beta', [64], tf.float32, tf.constant_initializer(0.0))
-                gamma1 = tf.get_variable('gamma', [64], tf.float32, tf.constant_initializer(1.0))
                 c1 = tf.nn.bias_add(tf.nn.conv2d(images, w1, [1, 2, 2, 1], padding='SAME'), b1)
                 mean1, variance1 = tf.nn.moments(c1, [0, 1, 2])
-                bn1 = tf.nn.batch_normalization(c1, mean1, variance1, beta1, gamma1, 1e-5)
+                bn1 = tf.nn.batch_normalization(c1, mean1, variance1, None, None, 1e-5)
                 lrelu1 = tf.maximum(0.2 * bn1, bn1)
-                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w1), 0.00001))
+                if not reuse:
+                    tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w1), 0.00001))
 
             with tf.variable_scope('conv2'):
                 w2 = tf.get_variable('weights', [5, 5, 64, 128], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b2 = tf.get_variable('biases', [128], tf.float32, tf.zeros_initializer)
-                beta2 = tf.get_variable('beta', [128], tf.float32, tf.constant_initializer(0.0))
-                gamma2 = tf.get_variable('gamma', [128], tf.float32, tf.constant_initializer(1.0))
                 c2 = tf.nn.bias_add(tf.nn.conv2d(lrelu1, w2, [1, 2, 2, 1], padding='SAME'), b2)
                 mean2, variance2 = tf.nn.moments(c2, [0, 1, 2])
-                bn2 = tf.nn.batch_normalization(c2, mean2, variance2, beta2, gamma2, 1e-5)
+                bn2 = tf.nn.batch_normalization(c2, mean2, variance2, None, None, 1e-5)
                 lrelu2 = tf.maximum(0.2 * bn2, bn2)
-                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w2), 0.00001))
+                if not reuse:
+                    tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w2), 0.00001))
 
             with tf.variable_scope('conv3'):
                 w3 = tf.get_variable('weights', [5, 5, 128, 256], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b3 = tf.get_variable('biases', [256], tf.float32, tf.zeros_initializer)
-                beta3 = tf.get_variable('beta', [256], tf.float32, tf.constant_initializer(0.0))
-                gamma3 = tf.get_variable('gamma', [256], tf.float32, tf.constant_initializer(1.0))
                 c3 = tf.nn.bias_add(tf.nn.conv2d(lrelu2, w3, [1, 2, 2, 1], padding='SAME'), b3)
                 mean3, variance3 = tf.nn.moments(c3, [0, 1, 2])
-                bn3 = tf.nn.batch_normalization(c3, mean3, variance3, beta3, gamma3, 1e-5)
+                bn3 = tf.nn.batch_normalization(c3, mean3, variance3, None, None, 1e-5)
                 lrelu3 = tf.maximum(0.2 * bn3, bn3)
-                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w3), 0.00001))
+                if not reuse:
+                    tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w3), 0.00001))
 
             with tf.variable_scope('conv4'):
                 w4 = tf.get_variable('weights', [5, 5, 256, 512], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                 b4 = tf.get_variable('biases', [512], tf.float32, tf.zeros_initializer)
-                beta4 = tf.get_variable('beta', [512], tf.float32, tf.constant_initializer(0.0))
-                gamma4 = tf.get_variable('gamma', [512], tf.float32, tf.constant_initializer(1.0))
                 c4 = tf.nn.bias_add(tf.nn.conv2d(lrelu3, w4, [1, 2, 2, 1], padding='SAME'), b4)
                 mean4, variance4 = tf.nn.moments(c4, [0, 1, 2])
-                bn4 = tf.nn.batch_normalization(c4, mean4, variance4, beta4, gamma4, 1e-5)
+                bn4 = tf.nn.batch_normalization(c4, mean4, variance4, None, None, 1e-5)
                 lrelu4 = tf.maximum(0.2 * bn4, bn4)
-                tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w4), 0.00001))
+                if not reuse:
+                    tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w4), 0.00001))
 
             with tf.variable_scope('output'):
                 dim = 1
@@ -151,15 +139,15 @@ class DCGAN:
     def train(self, inputs):
         logits_from_i = self.d.model(inputs)
         logits_from_g = self.d.model(self.g.output)
-        tf.add_to_collection('g_losses', tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits_from_g, tf.ones_like(logits_from_g))))
-        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits_from_i, tf.ones_like(logits_from_i))))
-        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits_from_g, tf.zeros_like(logits_from_g))))
+        tf.add_to_collection('g_losses', tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits_from_g, tf.ones([self.batch_size], dtype=tf.int64))))
+        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits_from_i, tf.ones([self.batch_size], dtype=tf.int64))))
+        tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits_from_g, tf.zeros([self.batch_size], dtype=tf.int64))))
         g_loss = tf.add_n(tf.get_collection('g_losses'), name='total_g_loss')
         d_loss = tf.add_n(tf.get_collection('d_losses'), name='total_d_loss')
         g_vars = [v for v in tf.trainable_variables() if v.name.startswith('g')]
         d_vars = [v for v in tf.trainable_variables() if v.name.startswith('d')]
-        g_optimizer = tf.train.AdamOptimizer(learning_rate=0.0002, beta1=0.5).minimize(g_loss, var_list=g_vars)
-        d_optimizer = tf.train.AdamOptimizer(learning_rate=0.0002, beta1=0.5).minimize(d_loss, var_list=d_vars)
+        g_optimizer = tf.train.AdamOptimizer(learning_rate=0.0001, beta1=0.5).minimize(g_loss, var_list=g_vars)
+        d_optimizer = tf.train.AdamOptimizer(learning_rate=0.0001, beta1=0.5).minimize(d_loss, var_list=d_vars)
         with tf.control_dependencies([g_optimizer, d_optimizer]):
             train_op = tf.no_op(name='train')
         return train_op, g_loss, d_loss
@@ -171,6 +159,7 @@ class DCGAN:
         features = tf.parse_single_example(value, features={'image_raw': tf.FixedLenFeature([], tf.string)})
         image = tf.cast(tf.image.decode_jpeg(features['image_raw'], channels=3), tf.float32)
         image.set_shape([INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, 3])
+        image = tf.image.random_flip_left_right(image)
 
         min_queue_examples = FLAGS.num_examples_per_epoch_for_train
         images = tf.train.shuffle_batch(
@@ -179,7 +168,7 @@ class DCGAN:
             capacity=min_queue_examples + 3 * self.batch_size,
             min_after_dequeue=min_queue_examples
         )
-        return tf.sub(tf.div(tf.image.resize_images(images, 64, 64), 127.5), 1.0)
+        return tf.sub(tf.div(tf.image.resize_images(images, 96, 96), 127.5), 1.0)
 
     def generate_images(self, num):
         images = tf.cast(tf.mul(tf.add(self.g.output, 1.0), 127.5), tf.uint8)
