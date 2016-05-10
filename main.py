@@ -135,10 +135,9 @@ class Discriminator:
                 dim = 1
                 for d in lrelu4.get_shape()[1:].as_list():
                     dim *= d
-                w5 = tf.get_variable('weights', [dim, 1], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
-                b5 = tf.get_variable('biases', [1], tf.float32, tf.zeros_initializer)
-                l = tf.nn.bias_add(tf.matmul(tf.reshape(lrelu4, [-1, dim]), w5), b5)
-                out = tf.sigmoid(l)
+                w5 = tf.get_variable('weights', [dim, 2], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
+                b5 = tf.get_variable('biases', [2], tf.float32, tf.zeros_initializer)
+                out = tf.nn.bias_add(tf.matmul(tf.reshape(lrelu4, [-1, dim]), w5), b5)
                 tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(w5), 0.00001))
 
         return out
@@ -193,8 +192,14 @@ def main(argv=None):
     images = dcgan.generate_images(9)
 
     saver = tf.train.Saver(tf.all_variables())
+    checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
     with tf.Session() as sess:
-        sess.run(tf.initialize_all_variables())
+        # restore or initialize
+        if os.path.exists(checkpoint_path):
+            saver.restore(sess, checkpoint_path)
+        else:
+            sess.run(tf.initialize_all_variables())
+
         tf.train.start_queue_runners(sess=sess)
 
         for step in range(100):
@@ -210,7 +215,6 @@ def main(argv=None):
                     f.write(image)
 
             if step % 10 == 0:
-                checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
                 saver.save(sess, checkpoint_path)
 
 if __name__ == '__main__':
