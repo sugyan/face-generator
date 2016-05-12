@@ -130,15 +130,20 @@ class DCGAN:
         )
         return tf.sub(tf.div(tf.image.resize_images(images, self.f_size * 2 ** 4, self.f_size * 2 ** 4), 127.5), 1.0)
 
-    def generate_images(self, num):
+    def generate_images(self, row=8, col=8):
         images = tf.cast(tf.mul(tf.add(self.g.output, 1.0), 127.5), tf.uint8)
-        return map(lambda image: tf.image.encode_png(tf.squeeze(image, [0])), tf.split(0, self.batch_size, images)[0:num])
+        images = [tf.squeeze(image, [0]) for image in tf.split(0, self.batch_size, images)]
+        rows = []
+        for i in range(row):
+            rows.append(tf.concat(1, images[col * i + 0:col * i + col]))
+        image = tf.concat(0, rows)
+        return tf.image.encode_png(image)
 
 def main(argv=None):
     dcgan = DCGAN(batch_size=64, f_size=6)
     inputs = dcgan.inputs([os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')])
     train_op, g_loss, d_loss = dcgan.train(inputs)
-    images = dcgan.generate_images(9)
+    images = dcgan.generate_images()
 
     g_saver = tf.train.Saver([v for v in tf.trainable_variables() if v.name.startswith('g')])
     d_saver = tf.train.Saver([v for v in tf.trainable_variables() if v.name.startswith('d')])
@@ -165,10 +170,11 @@ def main(argv=None):
             format_str = '%s: step %d, loss = (G: %.8f, D: %.8f) (%.3f sec/batch)'
             print format_str % (datetime.now(), step, g_loss_value, d_loss_value, duration)
 
-            for i, image in enumerate(sess.run(images, feed_dict={dcgan.g.z: random})):
-                with open('%02d.png' % i, 'wb') as f:
-                    f.write(image)
+            # generated images
+            with open('out.png', 'wb') as f:
+                f.write(sess.run(images, feed_dict={dcgan.g.z: random}))
 
+            # save variables
             if step % 10 == 0:
                 g_saver.save(sess, g_checkpoint_path)
             if step % 100 == 0:
