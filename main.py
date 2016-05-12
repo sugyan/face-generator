@@ -140,16 +140,20 @@ def main(argv=None):
     train_op, g_loss, d_loss = dcgan.train(inputs)
     images = dcgan.generate_images(9)
 
-    saver = tf.train.Saver(tf.trainable_variables())
-    checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
-
+    g_saver = tf.train.Saver([v for v in tf.trainable_variables() if v.name.startswith('g')])
+    d_saver = tf.train.Saver([v for v in tf.trainable_variables() if v.name.startswith('d')])
+    g_checkpoint_path = os.path.join(FLAGS.train_dir, 'g.ckpt')
+    d_checkpoint_path = os.path.join(FLAGS.train_dir, 'd.ckpt')
     with tf.Session() as sess:
         # restore or initialize
-        if os.path.exists(checkpoint_path):
-            saver.restore(sess, checkpoint_path)
-            sess.run(tf.initialize_variables([v for v in tf.all_variables() if not v in tf.trainable_variables()]))
-        else:
-            sess.run(tf.initialize_all_variables())
+        if os.path.exists(g_checkpoint_path):
+            g_saver.restore(sess, g_checkpoint_path)
+        if os.path.exists(d_checkpoint_path):
+            d_saver.restore(sess, d_checkpoint_path)
+        for v in tf.all_variables():
+            if not sess.run(tf.is_variable_initialized(v)):
+                print 'initialize variable %s' % v.name
+                sess.run(tf.initialize_variables([v]))
 
         tf.train.start_queue_runners(sess=sess)
 
@@ -166,7 +170,9 @@ def main(argv=None):
                     f.write(image)
 
             if step % 10 == 0:
-                saver.save(sess, checkpoint_path)
+                g_saver.save(sess, g_checkpoint_path)
+            if step % 100 == 0:
+                d_saver.save(sess, d_checkpoint_path)
 
 if __name__ == '__main__':
     tf.app.run()
