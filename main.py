@@ -30,11 +30,13 @@ class DCGAN:
         self.z = tf.placeholder(tf.float32, [None, self.z_dim], name='z')
 
     def __generator(self, depth1=1024, depth2=512, depth3=256, depth4=128):
+        reuse = False
         def model(inputs):
+            nonlocal reuse
             depths = [depth1, depth2, depth3, depth4, 3]
             i_depth = depths[0:4]
             o_depth = depths[1:5]
-            with tf.variable_scope('g', reuse=model.reuse):
+            with tf.variable_scope('g', reuse=reuse):
                 # reshape from inputs
                 with tf.variable_scope('reshape'):
                     w0 = tf.get_variable('weights', [self.z_dim, i_depth[0] * self.f_size * self.f_size], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
@@ -53,17 +55,18 @@ class DCGAN:
                         if i < 3:
                             mean, variance = tf.nn.moments(out, [0, 1, 2])
                             out = tf.nn.relu(tf.nn.batch_normalization(out, mean, variance, None, None, 1e-5))
-            model.reuse = True
+            reuse = True
             return tf.nn.tanh(out)
-        model.reuse = False
         return model
 
     def __discriminator(self, depth1=64, depth2=128, depth3=256, depth4=512):
+        reuse = False
         def model(inputs):
+            nonlocal reuse
             depths = [3, depth1, depth2, depth3, depth4]
             i_depth = depths[0:4]
             o_depth = depths[1:5]
-            with tf.variable_scope('d', reuse=model.reuse):
+            with tf.variable_scope('d', reuse=reuse):
                 outputs = inputs
                 # convolution layer
                 for i in range(4):
@@ -81,9 +84,8 @@ class DCGAN:
                         dim *= d
                     w = tf.get_variable('weights', [dim, 2], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
                     b = tf.get_variable('biases', [2], tf.float32, tf.zeros_initializer)
-            model.reuse = True
+            reuse = True
             return tf.nn.bias_add(tf.matmul(tf.reshape(outputs, [-1, dim]), w), b)
-        model.reuse = False
         return model
 
     def train(self, input_images):
@@ -136,10 +138,10 @@ class DCGAN:
         return tf.image.encode_png(image)
 
 def main(argv=None):
-    dcgan = DCGAN(batch_size=64, f_size=6)
+    dcgan = DCGAN(batch_size=96, f_size=6)
     inputs = dcgan.inputs([os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')])
     train_op, g_loss, d_loss = dcgan.train(inputs)
-    images = dcgan.generate_images()
+    images = dcgan.generate_images(4, 4)
 
     g_variables = [v for v in tf.trainable_variables() if v.name.startswith('g')]
     d_variables = [v for v in tf.trainable_variables() if v.name.startswith('d')]
@@ -151,14 +153,14 @@ def main(argv=None):
         # restore or initialize
         sess.run(tf.initialize_all_variables())
         if os.path.exists(g_checkpoint_path):
-            print 'restore variables:'
+            print('restore variables:')
             for v in g_variables:
-                print '  ' + v.name
+                print('  ' + v.name)
             g_saver.restore(sess, g_checkpoint_path)
         if os.path.exists(d_checkpoint_path):
-            print 'restore variables:'
+            print('restore variables:')
             for v in d_variables:
-                print '  ' + v.name
+                print('  ' + v.name)
             d_saver.restore(sess, d_checkpoint_path)
 
         # start training
@@ -171,7 +173,7 @@ def main(argv=None):
             _, g_loss_value, d_loss_value = sess.run([train_op, g_loss, d_loss], feed_dict={dcgan.z: random})
             duration = time.time() - start_time
             format_str = '%s: step %d, loss = (G: %.8f, D: %.8f) (%.3f sec/batch)'
-            print format_str % (datetime.now(), step, g_loss_value, d_loss_value, duration)
+            print(format_str % (datetime.now(), step, g_loss_value, d_loss_value, duration))
 
             # save generated images
             if step % 100 == 0:
