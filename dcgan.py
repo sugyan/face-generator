@@ -1,16 +1,19 @@
 import tensorflow as tf
 
 class DCGAN:
-    def __init__(self, batch_size=128, f_size=4):
+    def __init__(self,
+                 batch_size=128, f_size=4,
+                 gdepth1=1024, gdepth2=512, gdepth3=256, gdepth4=128,
+                 ddepth1=64,   ddepth2=128, ddepth3=256, ddepth4=512):
         self.batch_size = batch_size
         self.f_size = f_size
         self.z_dim = 100
 
-        self.g = self.__generator(*(250, 150, 90, 54))
-        self.d = self.__discriminator(*(54, 90, 150, 250))
+        self.g = self.__generator(gdepth1, gdepth2, gdepth3, gdepth4)
+        self.d = self.__discriminator(ddepth1, ddepth2, ddepth3, ddepth4)
         self.z = tf.placeholder(tf.float32, [None, self.z_dim], name='z')
 
-    def __generator(self, depth1=1024, depth2=512, depth3=256, depth4=128):
+    def __generator(self, depth1, depth2, depth3, depth4):
         reuse = False
         def model(inputs):
             nonlocal reuse
@@ -40,7 +43,7 @@ class DCGAN:
             return tf.nn.tanh(out)
         return model
 
-    def __discriminator(self, depth1=64, depth2=128, depth3=256, depth4=512):
+    def __discriminator(self, depth1, depth2, depth3, depth4):
         reuse = False
         def model(inputs):
             nonlocal reuse

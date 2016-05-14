@@ -24,7 +24,8 @@ tf.app.flags.DEFINE_boolean('is_train', True,
 
 INPUT_IMAGE_SIZE = 112
 
-def inputs(files, batch_size, f_size):
+def inputs(batch_size, f_size):
+    files = [os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')]
     fqueue = tf.train.string_input_producer(files)
     reader = tf.TFRecordReader()
     _, value = reader.read(fqueue)
@@ -44,9 +45,11 @@ def inputs(files, batch_size, f_size):
 
 
 def main(argv=None):
-    dcgan = DCGAN(batch_size=96, f_size=6)
-    files = [os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')]
-    input_images = inputs(files, dcgan.batch_size, dcgan.f_size)
+    dcgan = DCGAN(
+        batch_size=96, f_size=6,
+        gdepth1=250, gdepth2=150, gdepth3=90,  gdepth4=54,
+        ddepth1=54,  ddepth2=90,  ddepth3=150, ddepth4=250)
+    input_images = inputs(dcgan.batch_size, dcgan.f_size)
     train_op, g_loss, d_loss = dcgan.train(input_images)
     images = dcgan.generate_images(4, 4)
 
