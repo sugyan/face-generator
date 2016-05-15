@@ -8,19 +8,18 @@ class DCGAN:
         self.batch_size = batch_size
         self.f_size = f_size
         self.z_dim = 100
-
         self.g = self.__generator(gdepth1, gdepth2, gdepth3, gdepth4)
         self.d = self.__discriminator(ddepth1, ddepth2, ddepth3, ddepth4)
-        self.z = tf.placeholder(tf.float32, [None, self.z_dim], name='z')
 
     def __generator(self, depth1, depth2, depth3, depth4):
         reuse = False
-        def model(inputs):
+        def model():
             nonlocal reuse
             depths = [depth1, depth2, depth3, depth4, 3]
             i_depth = depths[0:4]
             o_depth = depths[1:5]
             with tf.variable_scope('g', reuse=reuse):
+                inputs = tf.random_uniform([self.batch_size, self.z_dim], minval=-1.0, maxval=1.0)
                 # reshape from inputs
                 with tf.variable_scope('reshape'):
                     w0 = tf.get_variable('weights', [self.z_dim, i_depth[0] * self.f_size * self.f_size], tf.float32, tf.truncated_normal_initializer(stddev=0.02))
@@ -73,7 +72,7 @@ class DCGAN:
         return model
 
     def train(self, input_images):
-        logits_from_g = self.d(self.g(self.z))
+        logits_from_g = self.d(self.g())
         logits_from_i = self.d(input_images)
         for v in tf.trainable_variables():
             if 'weights' in v.name:
@@ -95,7 +94,7 @@ class DCGAN:
         return train_op, g_loss, d_loss
 
     def generate_images(self, row=8, col=8):
-        images = tf.cast(tf.mul(tf.add(self.g(self.z), 1.0), 127.5), tf.uint8)
+        images = tf.cast(tf.mul(tf.add(self.g(), 1.0), 127.5), tf.uint8)
         images = [tf.squeeze(image, [0]) for image in tf.split(0, self.batch_size, images)]
         rows = []
         for i in range(row):
