@@ -50,8 +50,8 @@ def main(argv=None):
     train_op, g_loss, d_loss = dcgan.train(input_images)
     images = dcgan.generate_images(4, 4)
 
-    g_variables = [v for v in tf.trainable_variables() if v.name.startswith('g')]
-    d_variables = [v for v in tf.trainable_variables() if v.name.startswith('d')]
+    g_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
+    d_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='d')
     g_saver = tf.train.Saver(g_variables)
     d_saver = tf.train.Saver(d_variables)
     g_checkpoint_path = os.path.join(FLAGS.train_dir, 'g.ckpt')

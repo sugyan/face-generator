@@ -74,19 +74,17 @@ class DCGAN:
     def train(self, input_images):
         logits_from_g = self.d(self.g())
         logits_from_i = self.d(input_images)
-        for v in tf.trainable_variables():
-            if 'weights' in v.name:
-                if v.name.startswith('g'):
-                    tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(v), 1e-5))
-                if v.name.startswith('d'):
-                    tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(v), 1e-5))
+        g_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
+        d_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='d')
+        for v in [v for v in g_vars if 'weights' in v.name]:
+            tf.add_to_collection('g_losses', tf.mul(tf.nn.l2_loss(v), 1e-5))
+        for v in [v for v in d_vars if 'weights' in v.name]:
+            tf.add_to_collection('d_losses', tf.mul(tf.nn.l2_loss(v), 1e-5))
         tf.add_to_collection('g_losses', tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits_from_g, tf.ones([self.batch_size], dtype=tf.int64))))
         tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits_from_i, tf.ones([self.batch_size], dtype=tf.int64))))
         tf.add_to_collection('d_losses', tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits_from_g, tf.zeros([self.batch_size], dtype=tf.int64))))
         g_loss = tf.add_n(tf.get_collection('g_losses'), name='total_g_loss')
         d_loss = tf.add_n(tf.get_collection('d_losses'), name='total_d_loss')
-        g_vars = [v for v in tf.trainable_variables() if v.name.startswith('g')]
-        d_vars = [v for v in tf.trainable_variables() if v.name.startswith('d')]
         g_optimizer = tf.train.AdamOptimizer(learning_rate=0.0001, beta1=0.5).minimize(g_loss, var_list=g_vars)
         d_optimizer = tf.train.AdamOptimizer(learning_rate=0.0001, beta1=0.5).minimize(d_loss, var_list=d_vars)
         with tf.control_dependencies([g_optimizer, d_optimizer]):
