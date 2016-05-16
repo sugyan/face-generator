@@ -93,9 +93,9 @@ class DCGAN:
 
     def generate_images(self, row=8, col=8):
         images = tf.cast(tf.mul(tf.add(self.g(), 1.0), 127.5), tf.uint8)
-        images = [tf.squeeze(image, [0]) for image in tf.split(0, self.batch_size, images)]
+        images = [image for image in tf.split(0, self.batch_size, images)]
         rows = []
         for i in range(row):
-            rows.append(tf.concat(1, images[col * i + 0:col * i + col]))
-        image = tf.concat(0, rows)
-        return tf.image.encode_png(image)
+            rows.append(tf.concat(2, images[col * i + 0:col * i + col]))
+        image = tf.concat(1, rows)
+        return tf.image.encode_png(tf.squeeze(image, [0]))
