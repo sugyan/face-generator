@@ -5,5 +5,5 @@ MarkupSafe==0.23
 numpy==1.11.0
 protobuf==3.0.0b2
 six==1.10.0
-tensorflow==0.8.0
 Werkzeug==0.11.9
+https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.8.0-cp34-cp34m-linux_x86_64.whl
