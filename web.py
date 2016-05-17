@@ -22,7 +22,7 @@ sess = tf.Session()
 
 # setup ops
 dcgan = DCGAN(
-    batch_size=96, f_size=6,
+    batch_size=1, f_size=6,
     gdepth1=250, gdepth2=150, gdepth3=90,  gdepth4=54,
     ddepth1=0,  ddepth2=0,  ddepth3=0, ddepth4=0)
 inputs = tf.placeholder(tf.float32, (dcgan.batch_size, dcgan.z_dim))
