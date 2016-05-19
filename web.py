@@ -2,7 +2,7 @@ import io
 import os
 import urllib.request
 
-from flask import Flask, send_file
+from flask import Flask, send_file, render_template
 import numpy as np
 import tensorflow as tf
 
@@ -45,7 +45,7 @@ def image():
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLAGS.port)
