@@ -2,9 +2,11 @@
 <html>
   <head>
     <title>Face Generator</title>
-  </head>
-  <body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
     <script type="text/javascript" src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
   </body>
 </html>
