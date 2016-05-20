@@ -1,8 +1,9 @@
+import base64
 import io
 import os
 import urllib.request
 
-from flask import Flask, send_file, render_template
+from flask import Flask, render_template, jsonify
 import numpy as np
 import tensorflow as tf
 
@@ -37,11 +38,11 @@ saver.restore(sess, FLAGS.checkpoint_path)
 app = Flask(__name__)
 app.debug = True
 
-@app.route('/image')
+@app.route('/api/generate', methods=['POST'])
 def image():
     z = np.random.uniform(-1.0, 1.0, size=(dcgan.batch_size, dcgan.z_dim))
     result = sess.run(generate_image, feed_dict={inputs: z})
-    return send_file(io.BytesIO(result), mimetype='image/png')
+    return jsonify(results=['data:image/png;base64,' + base64.b64encode(result).decode()])
 
 @app.route('/')
 def root():
