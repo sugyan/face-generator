@@ -2,7 +2,7 @@
 
 ### DCGAN ###
 
-http://arxiv.org/pdf/1511.06434v2.pdf
+http://arxiv.org/abs/1511.06434
 
 
 ### Requirement ###
