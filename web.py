@@ -15,6 +15,7 @@ tf.app.flags.DEFINE_integer('port', 5000,
 tf.app.flags.DEFINE_string('checkpoint_path', '/tmp/g.ckpt',
                            """Directory where to read model checkpoints.""")
 
+# download checkpoint file
 if not os.path.isfile(FLAGS.checkpoint_path):
     print('No checkpoint file found')
     urllib.request.urlretrieve(os.environ['CHECKPOINT_DOWNLOAD_URL'], FLAGS.checkpoint_path)
@@ -22,8 +23,7 @@ if not os.path.isfile(FLAGS.checkpoint_path):
 # returns dictionary { <Tensor.name>: <values> }
 def get_moments():
     # graph for 128 batch
-    g = tf.Graph()
-    with g.as_default():
+    with tf.Graph().as_default() as g:
         with tf.Session() as sess:
             dcgan = DCGAN(batch_size=128, f_size=6,
                 gdepth1=250, gdepth2=150, gdepth3=90, gdepth4=54,
@@ -43,6 +43,8 @@ def get_moments():
 # calculate once
 moments = get_moments()
 
+
+# start session for web app
 sess = tf.Session()
 
 # setup single image generator
@@ -53,11 +55,6 @@ dcgan = DCGAN(
 inputs = tf.placeholder(tf.float32, (dcgan.batch_size, dcgan.z_dim))
 generate_image = dcgan.generate_images(1, 1, inputs)
 
-default_feed_dict = {}
-for op in sess.graph.get_operations():
-    for output in op.outputs:
-        if output.name in moments:
-            default_feed_dict[output] = moments[output.name]
 
 # restore variables
 variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
@@ -67,11 +64,16 @@ saver.restore(sess, FLAGS.checkpoint_path)
 # Flask setup
 app = Flask(__name__)
 app.debug = True
+app.config['DEFAULT_FEED_DICT'] = {}
+for op in sess.graph.get_operations():
+    for output in op.outputs:
+        if output.name in moments:
+            app.config['DEFAULT_FEED_DICT'][output] = moments[output.name]
 
 @app.route('/api/generate', methods=['POST'])
 def image():
     feed_dict = {inputs: np.random.uniform(-1.0, 1.0, size=(dcgan.batch_size, dcgan.z_dim))}
-    feed_dict.update(default_feed_dict)
+    feed_dict.update(app.config['DEFAULT_FEED_DICT'])
     result = sess.run(generate_image, feed_dict=feed_dict)
     return jsonify(results=['data:image/png;base64,' + base64.b64encode(result).decode()])
 
