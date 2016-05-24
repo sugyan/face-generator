@@ -51,11 +51,8 @@ def main(argv=None):
     images = dcgan.generate_images(4, 4)
 
     g_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
-    d_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='d')
     g_saver = tf.train.Saver(g_variables)
-    d_saver = tf.train.Saver(d_variables)
     g_checkpoint_path = os.path.join(FLAGS.train_dir, 'g.ckpt')
-    d_checkpoint_path = os.path.join(FLAGS.train_dir, 'd.ckpt')
     with tf.Session() as sess:
         # restore or initialize
         sess.run(tf.initialize_all_variables())
@@ -64,13 +61,17 @@ def main(argv=None):
             for v in g_variables:
                 print('  ' + v.name)
             g_saver.restore(sess, g_checkpoint_path)
-        if os.path.exists(d_checkpoint_path):
-            print('restore variables:')
-            for v in d_variables:
-                print('  ' + v.name)
-            d_saver.restore(sess, d_checkpoint_path)
 
         if FLAGS.is_train:
+            d_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='d')
+            d_saver = tf.train.Saver(d_variables)
+            d_checkpoint_path = os.path.join(FLAGS.train_dir, 'd.ckpt')
+            if os.path.exists(d_checkpoint_path):
+                print('restore variables:')
+                for v in d_variables:
+                    print('  ' + v.name)
+                d_saver.restore(sess, d_checkpoint_path)
+
             # start training
             tf.train.start_queue_runners(sess=sess)
 
