@@ -20,14 +20,19 @@ if not os.path.isfile(FLAGS.checkpoint_path):
     print('No checkpoint file found')
     urllib.request.urlretrieve(os.environ['CHECKPOINT_DOWNLOAD_URL'], FLAGS.checkpoint_path)
 
-# returns dictionary { <Tensor.name>: <values> }
+# DCGAN instance with specified batch size
+def get_dcgan(batch_size):
+    return DCGAN(
+        batch_size=batch_size, f_size=6, z_dim=40,
+        gdepth1=512, gdepth2=256, gdepth3=128, gdepth4=64,
+        ddepth1=0,   ddepth2=0,   ddepth3=0,   ddepth4=0)
+
+# moments dictionary { <Tensor.name>: <values> }
 def get_moments():
     # graph for 128 batch
     with tf.Graph().as_default() as g:
         with tf.Session() as sess:
-            dcgan = DCGAN(batch_size=128, f_size=6,
-                gdepth1=250, gdepth2=150, gdepth3=90, gdepth4=54,
-                ddepth1=0,   ddepth2=0,   ddepth3=0,  ddepth4=0)
+            dcgan = get_dcgan(128)
             dcgan.g(dcgan.z)
             variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
             saver = tf.train.Saver(variables)
@@ -48,10 +53,7 @@ moments = get_moments()
 sess = tf.Session()
 
 # setup single image generator
-dcgan = DCGAN(
-    batch_size=1, f_size=6,
-    gdepth1=250, gdepth2=150, gdepth3=90, gdepth4=54,
-    ddepth1=0,   ddepth2=0,   ddepth3=0,  ddepth4=0)
+dcgan = get_dcgan(1)
 inputs = tf.placeholder(tf.float32, (dcgan.batch_size, dcgan.z_dim))
 generate_image = dcgan.generate_images(1, 1, inputs)
 
