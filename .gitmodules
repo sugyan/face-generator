@@ -1,0 +1,3 @@
+[submodule "submodules/tf-dcgan"]
+	path = submodules/tf-dcgan
+	url = https://github.com/sugyan/tf-dcgan.git

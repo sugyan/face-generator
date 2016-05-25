@@ -14,7 +14,7 @@ tf.app.flags.DEFINE_string('images_dir', 'images',
                            """Directory where to write generated images.""")
 tf.app.flags.DEFINE_string('data_dir', 'data',
                            """Path to the TFRecord data directory.""")
-tf.app.flags.DEFINE_integer('num_examples_per_epoch_for_train', 10000,
+tf.app.flags.DEFINE_integer('num_examples_per_epoch_for_train', 5000,
                             """number of examples for train""")
 tf.app.flags.DEFINE_integer('max_steps', 5000,
                             """Number of batches to run.""")
@@ -43,12 +43,12 @@ def inputs(batch_size, f_size):
 
 def main(argv=None):
     dcgan = DCGAN(
-        batch_size=128, f_size=6,
-        gdepth1=250, gdepth2=150, gdepth3=90,  gdepth4=54,
+        batch_size=96, f_size=6, z_dim=40,
+        gdepth1=512, gdepth2=256, gdepth3=128,  gdepth4=64,
         ddepth1=54,  ddepth2=90,  ddepth3=150, ddepth4=250)
     input_images = inputs(dcgan.batch_size, dcgan.f_size)
     train_op, g_loss, d_loss = dcgan.train(input_images)
-    images = dcgan.generate_images(4, 4)
+    images = dcgan.generate_images(8, 8)
 
     g_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
     g_saver = tf.train.Saver(g_variables)
