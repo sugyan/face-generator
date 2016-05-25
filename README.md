@@ -1,18 +1,27 @@
 # face-generator
 
-### DCGAN ###
-
-http://arxiv.org/abs/1511.06434
+generate faces by DCGAN.
 
 
-### Requirement ###
+### Prerequisits ###
 
 - Python >= 3.5
- - TensorFlow >= 0.8.0
 
 
-### How to generate ###
+### Dependencies ###
+
+- https://github.com/sugyan/tf-dcgan
+
+
+### Setup ###
+
+    $ git clone https://github.com/sugyan/face-generator.git
+    $ cd face-generator
+    $ git submodule update --init
+    $ pip3 install --upgrade -r requirements.txt
+
+
+### Usage ###
 
     $ python3 main.py --is_train False
 
-will write generated images to `images/out.png`.
