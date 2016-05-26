@@ -4,10 +4,11 @@
     <title>Face Generator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
     <script type="text/javascript" src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/lib/react.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/lib/react-dom.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
   </head>
   <body>
-    <canvas id="canvas"></canvas>
-    <button id="button">generate</button>
+    <div id="main"></div>
   </body>
 </html>

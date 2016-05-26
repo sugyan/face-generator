@@ -77,7 +77,7 @@ def image():
     feed_dict = {inputs: np.random.uniform(-1.0, 1.0, size=(dcgan.batch_size, dcgan.z_dim))}
     feed_dict.update(app.config['DEFAULT_FEED_DICT'])
     result = sess.run(generate_image, feed_dict=feed_dict)
-    return jsonify(results=['data:image/png;base64,' + base64.b64encode(result).decode()])
+    return jsonify(result='data:image/png;base64,' + base64.b64encode(result).decode())
 
 @app.route('/')
 def root():

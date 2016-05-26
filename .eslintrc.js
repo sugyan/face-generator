@@ -3,6 +3,11 @@ module.exports = {
         "browser": true,
         "es6": true
     },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
     "extends": "eslint:recommended",
     "rules": {
         "indent": [
@@ -20,6 +25,8 @@ module.exports = {
         "semi": [
             "error",
             "always"
-        ]
-    }
+        ],
+        "react/jsx-uses-vars": 1
+    },
+    "plugins": ["react"]
 };
