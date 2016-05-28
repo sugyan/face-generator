@@ -9,21 +9,23 @@ class Faces extends React.Component {
     }
     componentDidMount() {
         const z_dim = 40;
-        const cols = 10;
+        const cols = 8;
 
         const z0 = [];
         const z1 = [];
         const d = [];
+        let scale = Infinity;
         for (let i = 0; i < z_dim; i++) {
             z0[i] = Math.random() * 2 - 1;
             z1[i] = Math.random() * 2 - 1;
             d[i] = z1[i] - z0[i];
+            scale = Math.min(scale, 1.0 + ((d[i] > 0.0 ? 1.0 : -1.0) - z1[i]) / d[i]);
         }
         const zs = [];
-        for (let i = 0; i <= cols; i++) {
+        for (let i = 0; i < cols; i++) {
             const z = [];
             for (let j = 0; j < z_dim; j++) {
-                z[j] = z0[j] + i / cols * d[j];
+                z[j] = z0[j] + (i + 1) / cols * d[j] * scale;
             }
             zs.push(z);
         }
