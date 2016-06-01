@@ -89,8 +89,8 @@ def main(argv=None):
                         f.write(sess.run(images))
                 # save variables
                 if step % 100 == 0:
-                    g_saver.save(sess, g_checkpoint_path)
-                    d_saver.save(sess, d_checkpoint_path)
+                    g_saver.save(sess, g_checkpoint_path, global_step=step)
+                    d_saver.save(sess, d_checkpoint_path, global_step=step)
         else:
             generated = sess.run(images)
             filename = os.path.join(FLAGS.images_dir, 'out.png')
