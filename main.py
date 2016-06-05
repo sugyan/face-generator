@@ -48,7 +48,7 @@ def main(argv=None):
         ddepth1=54,  ddepth2=90,  ddepth3=150, ddepth4=250)
     input_images = inputs(dcgan.batch_size, dcgan.f_size)
     train_op, g_loss, d_loss = dcgan.train(input_images, learning_rate=0.0001)
-    images = dcgan.generate_images(8, 8)
+    images = dcgan.generate_images(4, 4)
 
     g_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
     g_saver = tf.train.Saver(g_variables)
@@ -89,8 +89,8 @@ def main(argv=None):
                         f.write(sess.run(images))
                 # save variables
                 if step % 100 == 0:
-                    g_saver.save(sess, g_checkpoint_path)
-                    d_saver.save(sess, d_checkpoint_path)
+                    g_saver.save(sess, g_checkpoint_path, global_step=step)
+                    d_saver.save(sess, d_checkpoint_path, global_step=step)
         else:
             generated = sess.run(images)
             filename = os.path.join(FLAGS.images_dir, 'out.png')
