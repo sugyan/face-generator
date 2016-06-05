@@ -47,7 +47,7 @@ def main(argv=None):
         gdepth1=512, gdepth2=256, gdepth3=128,  gdepth4=64,
         ddepth1=54,  ddepth2=90,  ddepth3=150, ddepth4=250)
     input_images = inputs(dcgan.batch_size, dcgan.f_size)
-    train_op, g_loss, d_loss = dcgan.train(input_images)
+    train_op, g_loss, d_loss = dcgan.train(input_images, learning_rate=0.0001)
     images = dcgan.generate_images(8, 8)
 
     g_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
