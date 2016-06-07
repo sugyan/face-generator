@@ -4,65 +4,49 @@ class Morphing extends React.Component {
     constructor(props) {
         super(props);
         this.z_dim = 40;
+        this.rows = 5;
+        this.cols = 8;
+        this.z = Array.from(Array(this.z_dim)).map(() => Math.random() * 2 - 1);
         this.state = {
-            z: Array.from(Array(this.z_dim)).map(() => Math.random() * 2 - 1),
-            face: null
+            faces: Array.from(Array(this.rows)).map(() => Array.from(Array(this.cols)))
         };
     }
     componentDidMount() {
+        this.runMorphing();
+    }
+    runMorphing() {
         $.ajax({
             url: '/api/generate',
             method: 'POST',
-            data: JSON.stringify(this.state.z),
+            data: JSON.stringify(this.z),
             contentType: 'application/json',
             success: (data) => {
-                this.setState({ face: data.result });
+                const faces = this.state.faces;
+                faces.forEach((row, i) => {
+                    row.forEach((_, j) => {
+                        faces[i][j] = undefined;
+                    });
+                });
+                this.setState({
+                    base: data.result,
+                    faces: faces
+                });
+                this.generateFaces(this.z);
             }
         });
     }
-    updateBaseFace(z) {
-        this.setState({ z: z });
-    }
-    handleSelectBaseFace(face) {
-        this.updateBaseFace(face.props.z);
-    }
-    render() {
-        let faces = null;
-        if (this.state.face) {
-            faces = <MorphingFaces z={this.state.z} z_dim={this.z_dim} handleSelectBaseFace={this.handleSelectBaseFace.bind(this)} />;
-        }
-        return (
-            <div>
-              <h2>Morphing</h2>
-              <Face src={this.state.face} />
-              {faces}
-            </div>
-        );
-    }
-}
-
-class MorphingFaces extends React.Component {
-    constructor(props) {
-        super(props);
-        this.rows = 5;
-        this.cols = 8;
-        this.state = {
-            faces: Array.from(Array(this.rows)).map(() => Array.from(Array(this.cols), () => []))
-        };
-    }
-    componentDidMount() {
+    generateFaces(z0) {
         this.state.faces.forEach((row, i) => {
-            const z1 = [];
             const d = [];
             let scale = Infinity;
-            for (let j = 0; j < this.props.z_dim; j++) {
-                z1[j] = Math.random() * 2 - 1;
-                d[j] = z1[j] - this.props.z[j];
-                scale = Math.min(scale, 1.0 + ((d[j] > 0.0 ? 1.0 : -1.0) - z1[j]) / d[j]);
+            for (let j = 0; j < this.z_dim; j++) {
+                const z1 = Math.random() * 2 - 1;
+                d[j] = z1 - z0[j];
+                scale = Math.min(scale, 1.0 + ((d[j] > 0.0 ? 1.0 : -1.0) - z1) / d[j]);
             }
-            row.forEach((col, j) => {
-                const z = Array.from(Array(this.props.z_dim)).map((_, k) => {
-                    return this.props.z[k] + (j + 1) / this.cols * d[k] * scale;
+            row.forEach((_, j) => {
+                const z = Array.from(Array(this.z_dim)).map((_, k) => {
+                    return z0[k] + (j + 1) / this.cols * d[k] * scale;
                 });
                 $.ajax({
                     url: '/api/generate',
@@ -78,16 +62,35 @@ class MorphingFaces extends React.Component {
             });
         });
     }
+    selectBaseFace(face) {
+        this.z = face.props.z;
+        this.runMorphing();
+    }
     render() {
-        const faces = this.state.faces.map((row) => {
-            const cols = row.map((e) => {
-                return <Face src={e[0]} z={e[1]} handleClick={this.props.handleSelectBaseFace} />;
+        const base = <Face src={this.state.base} z={this.z} handleClick={this.selectBaseFace.bind(this)} />;
+        return (
+            <div>
+              <h2>Morphing</h2>
+              {base}
+              <MorphingFaces faces={this.state.faces} handleSelectBaseFace={this.selectBaseFace.bind(this)} />
+            </div>
+        );
+    }
+}
+
+class MorphingFaces extends React.Component {
+    render() {
+        const faces = this.props.faces.map((row) => {
+            const cols = row.map((data) => {
+                let src, z;
+                if (data) {
+                    [src, z] = data;
+                }
+                return <Face src={src} z={z} handleClick={this.props.handleSelectBaseFace} />;
             });
             return <div>{cols}</div>;
         });
-        return (
-            <div>{faces}</div>
-        );
+        return <div>{faces}</div>;
     }
 }
 
@@ -144,7 +147,7 @@ class AverageRandomGenerator extends React.Component {
                 return <Face src={e} />;
             });
             return (
-                <div style={{ lineHeight: 0 }}>{cols}</div>
+                <div>{cols}</div>
             );
         });
         return (
