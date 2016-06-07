@@ -1,6 +1,10 @@
 {
   "name": "face-generator",
   "version": "1.0.0",
+  "engines": {
+    "node": "4.4.5",
+    "npm": "2.15.1"
+  },
   "description": "",
   "main": "",
   "scripts": {
@@ -23,7 +27,9 @@
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "jquery": "^2.2.4",
+    "muicss": "^0.6.0",
     "react": "^15.1.0",
-    "react-dom": "^15.1.0"
+    "react-dom": "^15.1.0",
+    "react-router": "^2.4.1"
   }
 }
