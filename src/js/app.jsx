@@ -66,12 +66,24 @@ class Morphing extends React.Component {
         this.z = face.props.z;
         this.runMorphing();
     }
+    setRandomBaseFace() {
+        this.z = Array.from(Array(this.z_dim)).map(() => Math.random() * 2 - 1);
+        this.runMorphing();
+    }
     render() {
         const base = <Face src={this.state.base} z={this.z} handleClick={this.selectBaseFace.bind(this)} />;
         return (
             <div>
               <h2>Morphing</h2>
-              {base}
+              <div style={{ marginBottom: '5px' }}>
+                {base}
+                <button
+                    style={{ marginBottom: 0, marginLeft: 5, verticalAlign: 'bottom' }}
+                    className="mui-btn mui-btn--small mui-btn--primary"
+                    onClick={this.setRandomBaseFace.bind(this)}>
+                  RANDOM
+                </button>
+              </div>
               <MorphingFaces faces={this.state.faces} handleSelectBaseFace={this.selectBaseFace.bind(this)} />
             </div>
         );
@@ -197,7 +209,7 @@ class App extends React.Component {
                       <td style={{ textAlign: 'right' }}>
                         <ul className="mui-list--inline mui--text-body2">
                           <li><Link style={{ color: 'white' }} to="/morphing">Morphing</Link></li>
-                          <li><Link style={{ color: 'white' }} to="/average">Average</Link></li>
+                          {/* <li><Link style={{ color: 'white' }} to="/average">Average</Link></li> */}
                         </ul>
                       </td>
                     </tr>
