@@ -107,4 +107,3 @@ data/*.tfrecords
 train/*
 images/*
 static/js/*.js
-!static/js/lib/*

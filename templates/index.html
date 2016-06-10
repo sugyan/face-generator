@@ -4,11 +4,9 @@
     <title>Face Generator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/lib/mui.min.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
-    <script type="text/javascript" src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/lib/react.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/lib/react-dom.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/lib/ReactRouter.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bundle.js') }}"></script>
   </head>
-  <body id="body"></body>
+  <body>
+    <div id="main"></div>
+  </body>
 </html>
