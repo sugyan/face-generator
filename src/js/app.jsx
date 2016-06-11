@@ -19,7 +19,7 @@ class Common extends React.Component {
                         </td>
                         <td style={{ textAlign: 'right' }}>
                           <ul className="mui-list--inline mui--text-body2">
-                            <li><Link style={{ color: 'white' }} to="/morphing">Morphing</Link></li>
+                            {/* <li><Link style={{ color: 'white' }} to="/morphing">Morphing</Link></li> */}
                           </ul>
                         </td>
                       </tr>
