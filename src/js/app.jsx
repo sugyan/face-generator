@@ -1,5 +1,6 @@
 import React from 'react';
 import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router';
+import { Appbar, Container } from 'muicss/react';
 
 import Index from './components/index.jsx';
 import Morphing from './components/morphing.jsx';
@@ -8,8 +9,8 @@ class Common extends React.Component {
     render() {
         return (
             <div>
-              <header className="mui-appbar mui--z1">
-                <div className="mui-container">
+              <Appbar>
+                <Container>
                   <table width="100%">
                     <tbody>
                       <tr className="mui--appbar-height">
@@ -24,11 +25,9 @@ class Common extends React.Component {
                       </tr>
                     </tbody>
                   </table>
-                </div>
-              </header>
-              <div className="mui-container">
-                {this.props.children}
-              </div>
+                </Container>
+              </Appbar>
+              <Container>{this.props.children}</Container>
             </div>
         );
     }
