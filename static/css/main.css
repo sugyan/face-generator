@@ -1,13 +1,8 @@
-html,
-body,
-input,
-textarea,
-buttons {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
+body {
+    margin: 0;
+    font-family: Roboto, sans-serif;
 }
 
-.mui-appbar ul.mui-list--inline {
-  margin-bottom: 0;
+h2 {
+    font-weight: 400;
 }

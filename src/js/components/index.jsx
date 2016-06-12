@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from 'muicss/lib/react/button';
+import RaisedButton from 'material-ui/RaisedButton';
 
 import Face from './face.jsx';
 
@@ -32,12 +32,12 @@ export default class Index extends React.Component {
             <div>
               <h2>Generator</h2>
               <div>
-                <Button onClick={this.generate.bind(this)} color="primary">
+                <RaisedButton onClick={this.generate.bind(this)} primary={true}>
                   generate
-                </Button>
-                <Button onClick={this.clear.bind(this)}>
+                </RaisedButton>
+                <RaisedButton onClick={this.clear.bind(this)}>
                   clear
-                </Button>
+                </RaisedButton>
               </div>
               <div>{faces}</div>
             </div>

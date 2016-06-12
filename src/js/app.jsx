@@ -1,6 +1,8 @@
 import React from 'react';
-import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router';
-import { Appbar, Container } from 'muicss/react';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import AppBar from 'material-ui/AppBar';
 
 import Index from './components/index.jsx';
 import Morphing from './components/morphing.jsx';
@@ -9,25 +11,13 @@ class Common extends React.Component {
     render() {
         return (
             <div>
-              <Appbar>
-                <Container>
-                  <table width="100%">
-                    <tbody>
-                      <tr className="mui--appbar-height">
-                        <td className="mui--text-title">
-                          <Link style={{ color: 'white' }} to="/">Face Generator</Link>
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          <ul className="mui-list--inline mui--text-body2">
-                            {/* <li><Link style={{ color: 'white' }} to="/morphing">Morphing</Link></li> */}
-                          </ul>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </Container>
-              </Appbar>
-              <Container>{this.props.children}</Container>
+              <AppBar
+                  title="Face Generator"
+                  showMenuIconButton={false}>
+              </AppBar>
+              <div style={{ margin: '24px 36px' }}>
+                {this.props.children}
+              </div>
             </div>
         );
     }
@@ -36,12 +26,14 @@ class Common extends React.Component {
 export default class App extends React.Component {
     render() {
         return (
-            <Router history={browserHistory}>
-              <Route path="/" component={Common}>
-                <IndexRoute component={Index} />
-                <Route path="morphing" component={Morphing} />
-              </Route>
-            </Router>
+            <MuiThemeProvider muiTheme={getMuiTheme()}>
+              <Router history={browserHistory}>
+                <Route path="/" component={Common}>
+                  <IndexRoute component={Index} />
+                  <Route path="morphing" component={Morphing} />
+                </Route>
+              </Router>
+            </MuiThemeProvider>
         );
     }
 }
