@@ -32,10 +32,10 @@ export default class Index extends React.Component {
             <div>
               <h2>Generator</h2>
               <div>
-                <RaisedButton onClick={this.generate.bind(this)} primary={true}>
+                <RaisedButton onMouseUp={this.generate.bind(this)} primary={true}>
                   generate
                 </RaisedButton>
-                <RaisedButton onClick={this.clear.bind(this)}>
+                <RaisedButton onMouseUp={this.clear.bind(this)}>
                   clear
                 </RaisedButton>
               </div>

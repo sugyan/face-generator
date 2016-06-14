@@ -1,27 +1,35 @@
 import React from 'react';
+import RefreshIndicator from 'material-ui/RefreshIndicator';
+import 'whatwg-fetch';
 
 export default class Face extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            src: '/static/img/loading.gif'
-        };
+        this.state = {};
     }
     componentDidMount() {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/generate');
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                const data = JSON.parse(xhr.responseText);
-                this.setState({
-                    src: data.result
-                });
-            }
-        };
-        xhr.send(JSON.stringify(this.props.z));
+        fetch('/api/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.props.z)
+        }).then((response) => {
+            return response.json();
+        }).then((json) => {
+            this.setState({ src: json.result });
+        });
     }
     render() {
-        return <img src={this.state.src} style={{ backgroundColor: 'black' }} />;
+        const indicator_style = {
+            display: 'inline-block',
+            position: 'relative',
+            verticalAlign: 'top'
+        };
+        return (
+            this.state.src
+            ? <img src={this.state.src} />
+            : <RefreshIndicator left={0} top={0} size={96} status="loading" style={indicator_style} />
+        );
     }
 }
