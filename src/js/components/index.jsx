@@ -39,6 +39,7 @@ export default class Index extends React.Component {
                   clear
                 </RaisedButton>
               </div>
+              <br />
               <div>{faces}</div>
             </div>
         );
