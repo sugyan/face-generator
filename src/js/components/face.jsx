@@ -1,6 +1,6 @@
 import React from 'react';
 import Paper from 'material-ui/Paper';
-import RefreshIndicator from 'material-ui/RefreshIndicator';
+import CircularProgress from 'material-ui/CircularProgress';
 import 'whatwg-fetch';
 
 export default class Face extends React.Component {
@@ -18,22 +18,17 @@ export default class Face extends React.Component {
         }).then((response) => {
             return response.json();
         }).then((json) => {
-            this.setState({ src: json.result });
+            window.setTimeout(() => {
+                this.setState({ src: json.result });
+            }, 750);
         });
     }
     render() {
-        const indicator_style = {
-            display: 'inline-block',
-            position: 'relative',
-            verticalAlign: 'top',
-            boxShadow: 'none',
-            backgroundColor: 'none'
-        };
         return (
-            <Paper zDepth={2} style={{ float: 'left', height: 96, backgroundColor: 'gray', margin: 5 }}>
+            <Paper zDepth={2} style={{ float: 'left', height: 96, width: 96, margin: 5 }}>
               {this.state.src
-               ? <img src={this.state.src} />
-               : <RefreshIndicator left={0} top={0} size={96} status="loading" style={indicator_style} />}
+              ? <img src={this.state.src} />
+              : <CircularProgress size={1.92 / 1.4} />}
             </Paper>
         );
     }
