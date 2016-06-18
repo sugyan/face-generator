@@ -22,6 +22,7 @@ tf.app.flags.DEFINE_boolean('is_train', True,
                             """True for training, False for generate only""")
 
 INPUT_IMAGE_SIZE = 112
+CROP_IMAGE_SIZE = 96
 
 def inputs(batch_size, f_size):
     files = [os.path.join(FLAGS.data_dir, f) for f in os.listdir(FLAGS.data_dir) if f.endswith('.tfrecords')]
@@ -29,8 +30,9 @@ def inputs(batch_size, f_size):
     reader = tf.TFRecordReader()
     _, value = reader.read(fqueue)
     features = tf.parse_single_example(value, features={'image_raw': tf.FixedLenFeature([], tf.string)})
-    image = tf.cast(tf.image.decode_jpeg(features['image_raw'], channels=3), tf.float32)
+    image = tf.image.convert_image_dtype(tf.image.decode_jpeg(features['image_raw'], channels=3), tf.float32)
     image.set_shape([INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, 3])
+    image = tf.image.resize_image_with_crop_or_pad(image, CROP_IMAGE_SIZE, CROP_IMAGE_SIZE)
     image = tf.image.random_flip_left_right(image)
 
     min_queue_examples = FLAGS.num_examples_per_epoch_for_train
