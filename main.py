@@ -50,13 +50,12 @@ def main(argv=None):
         ddepth1=54,  ddepth2=90,  ddepth3=150, ddepth4=250)
     input_images = inputs(dcgan.batch_size, dcgan.f_size)
     train_op, g_loss, d_loss = dcgan.train(input_images, learning_rate=0.0001)
-    images = dcgan.generate_images(4, 4)
 
     g_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
     g_saver = tf.train.Saver(g_variables)
     g_checkpoint_path = os.path.join(FLAGS.train_dir, 'g.ckpt')
     with tf.Session() as sess:
-        # restore or initialize
+        # restore or initialize generator
         sess.run(tf.initialize_all_variables())
         if os.path.exists(g_checkpoint_path):
             print('restore variables:')
@@ -65,6 +64,7 @@ def main(argv=None):
             g_saver.restore(sess, g_checkpoint_path)
 
         if FLAGS.is_train:
+            # restore or initialize discriminator
             d_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='d')
             d_saver = tf.train.Saver(d_variables)
             d_checkpoint_path = os.path.join(FLAGS.train_dir, 'd.ckpt')
@@ -74,9 +74,12 @@ def main(argv=None):
                     print('  ' + v.name)
                 d_saver.restore(sess, d_checkpoint_path)
 
+            # setup for monitoring
+            sample_z = sess.run(tf.random_uniform([dcgan.batch_size, dcgan.z_dim], minval=-1.0, maxval=1.0))
+            images = dcgan.generate_images(4, 4, inputs=sample_z)
+
             # start training
             tf.train.start_queue_runners(sess=sess)
-
             for step in range(FLAGS.max_steps):
                 start_time = time.time()
                 _, g_loss_value, d_loss_value = sess.run([train_op, g_loss, d_loss])
@@ -86,7 +89,7 @@ def main(argv=None):
 
                 # save generated images
                 if step % 100 == 0:
-                    filename = os.path.join(FLAGS.images_dir, '%04d.png' % step)
+                    filename = os.path.join(FLAGS.images_dir, '%04d.jpg' % step)
                     with open(filename, 'wb') as f:
                         f.write(sess.run(images))
                 # save variables
@@ -95,7 +98,7 @@ def main(argv=None):
                     d_saver.save(sess, d_checkpoint_path, global_step=step)
         else:
             generated = sess.run(images)
-            filename = os.path.join(FLAGS.images_dir, 'out.png')
+            filename = os.path.join(FLAGS.images_dir, 'out.jpg')
             with open(filename, 'wb') as f:
                 f.write(generated)
 
