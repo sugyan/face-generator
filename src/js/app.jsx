@@ -3,9 +3,12 @@ import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import AppBar from 'material-ui/AppBar';
+import injectTapEventPlugin from 'react-tap-event-plugin';
 
 import Index from './components/index.jsx';
 import Morphing from './components/morphing.jsx';
+
+injectTapEventPlugin();
 
 class Common extends React.Component {
     render() {

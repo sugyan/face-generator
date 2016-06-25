@@ -25,17 +25,15 @@ export default class Index extends React.Component {
         });
     }
     render() {
-        const faces = this.state.faces.map((z, i) => {
-            return <Face key={`${i}`} z={z} />;
-        });
+        const faces = this.state.faces.map((z, i) => <Face key={i} z={z} />);
         return (
             <div>
               <h2>Generator</h2>
               <div>
-                <RaisedButton onMouseUp={this.generate.bind(this)} primary={true}>
+                <RaisedButton onTouchTap={this.generate.bind(this)} primary={true}>
                   generate
                 </RaisedButton>
-                <RaisedButton onMouseUp={this.clear.bind(this)}>
+                <RaisedButton onTouchTap={this.clear.bind(this)}>
                   clear
                 </RaisedButton>
               </div>
