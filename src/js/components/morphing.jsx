@@ -2,7 +2,9 @@ import React from 'react';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import FlatButton from 'material-ui/FlatButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
+import ContentClear from 'material-ui/svg-icons/content/clear';
 import Dialog from 'material-ui/Dialog';
+import { List } from 'immutable';
 
 import Face from './face.jsx';
 
@@ -12,8 +14,8 @@ export default class Morphing extends React.Component {
         this.z_dim = 40;
         this.state = {
             openDialog: false,
-            selectedFaces: [],
-            randomFaces: []
+            selectedFaces: List.of(),
+            randomFaces: List.of()
         };
     }
     handleClickAddButton() {
@@ -24,25 +26,37 @@ export default class Morphing extends React.Component {
             })
         });
     }
+    handleClickClearButton(i) {
+        this.setState({
+            selectedFaces: this.state.selectedFaces.splice(i, 1)
+        });
+    }
     handleClose() {
         this.setState({
             openDialog: false
         });
     }
     selectFace(face) {
-        const faces = this.state.selectedFaces;
-        faces.push(face);
         this.setState({
             openDialog: false,
-            selectedFaces: faces
+            selectedFaces: this.state.selectedFaces.push(face)
         });
     }
     render() {
         const randomFaces = this.state.randomFaces.map((z, i) => {
-            return <Face key={i} z={z} onTouchTap={this.selectFace.bind(this)} />;
+            return (
+                <Face key={i} z={z} onTouchTap={this.selectFace.bind(this)} />
+            );
         });
         const selectedFaces = this.state.selectedFaces.map((f, i) => {
-            return <Face key={i} z={f.props.z} src={f.state.src} />;
+            return (
+                <div key={f.key}>
+                  <Face z={f.props.z} src={f.state.src} />
+                  <FloatingActionButton mini={true} secondary={true} onTouchTap={this.handleClickClearButton.bind(this, i)}>
+                    <ContentClear />
+                  </FloatingActionButton>
+                </div>
+            );
         });
         return (
             <div>

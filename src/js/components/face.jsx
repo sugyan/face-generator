@@ -7,6 +7,7 @@ import 'whatwg-fetch';
 export default class Face extends React.Component {
     constructor(props) {
         super(props);
+        this.key = Math.floor(Math.random() * 0xFFFFFFFF).toString(16);
         this.state = {
             src: props.src
         };
