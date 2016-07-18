@@ -9,13 +9,26 @@ import 'whatwg-fetch';
 import Face from './face.jsx';
 
 class SelectFaceDialog extends React.Component {
-    componentDidMount() {
+    handleTouchTapFace(i) {
+        if (this.props.onSelectFace) {
+            this.props.onSelectFace(i);
+        }
     }
     render() {
         const faces = this.props.faces.map((face, i) => {
-            return (
-                <Face key={i} src={face.get('src')} />
-            );
+            const src = face.get('src');
+            if (src) {
+                return (
+                    <FlatButton
+                        key={i}
+                        style={{ height: null, float: 'left' }}
+                        onTouchTap={this.handleTouchTapFace.bind(this, i)}>
+                      <Face src={face.get('src')} />
+                    </FlatButton>
+                );
+            } else {
+                return <Face key={i} />;
+            }
         });
         return (
             <Dialog
@@ -40,8 +53,7 @@ export default class Morphing extends React.Component {
                 open: false,
                 faces: List()
             }),
-            selectedFaces: List.of(),
-            randomFaces: List.of()
+            faces: List.of()
         };
     }
     handleClickAddButton() {
@@ -83,21 +95,24 @@ export default class Morphing extends React.Component {
             selectedFaces: this.state.selectedFaces.splice(i, 1)
         });
     }
-    selectFace(face) {
+    selectFace(i) {
         this.setState({
-            openDialog: false,
-            selectedFaces: this.state.selectedFaces.push(face)
+            dialog: this.state.dialog.set('open', false),
+            faces: this.state.faces.push(this.state.dialog.get('faces').get(i))
         });
     }
     render() {
-        const selectedFaces = undefined;
+        const selectedFaces = this.state.faces.map((face, i) => {
+            return <Face key={i} src={face.get('src')} />;
+        });
         return (
             <div>
               <h2>Morphing</h2>
               <SelectFaceDialog
                   faces={this.state.dialog.get('faces')}
                   open={this.state.dialog.get('open')}
-                  onTouchTapCancelButton={this.handleCancelButton.bind(this)} />
+                  onTouchTapCancelButton={this.handleCancelButton.bind(this)}
+                  onSelectFace={this.selectFace.bind(this)} />
               <div>{selectedFaces}</div>
               <FloatingActionButton onTouchTap={this.handleClickAddButton.bind(this)}>
                 <ContentAdd />
