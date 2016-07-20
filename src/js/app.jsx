@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import { Router, Route, IndexRoute, hashHistory } from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import AppBar from 'material-ui/AppBar';
@@ -30,7 +30,7 @@ export default class App extends React.Component {
     render() {
         return (
             <MuiThemeProvider muiTheme={getMuiTheme()}>
-              <Router history={browserHistory}>
+              <Router history={hashHistory}>
                 <Route path="/" component={Common}>
                   <IndexRoute component={Index} />
                   <Route path="morphing" component={Morphing} />
