@@ -3,7 +3,7 @@ import io
 import os
 import urllib.request
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, jsonify, request
 import numpy as np
 import tensorflow as tf
 
@@ -81,7 +81,7 @@ def image():
 
 @app.route('/')
 def root():
-    return render_template('index.html')
+    return app.send_static_file('index.html')
 
 @app.route('/<foo>')
 def index(foo):
