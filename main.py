@@ -97,9 +97,10 @@ def main(argv=None):
                     g_saver.save(sess, g_checkpoint_path, global_step=step)
                     d_saver.save(sess, d_checkpoint_path, global_step=step)
         else:
-            generated = sess.run(images)
+            generated = sess.run(dcgan.generate_images(8, 8))
             filename = os.path.join(FLAGS.images_dir, 'out.jpg')
             with open(filename, 'wb') as f:
+                print('write to %s' % filename)
                 f.write(generated)
 
 if __name__ == '__main__':
