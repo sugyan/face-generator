@@ -49,11 +49,13 @@ def main(argv=None):
         gdepth1=512, gdepth2=256, gdepth3=128, gdepth4=64,
         ddepth1=64,  ddepth2=128, ddepth3=256, ddepth4=512)
     input_images, num_samples = inputs(dcgan.batch_size, dcgan.f_size)
-    train_op, g_loss, d_loss = dcgan.train(input_images, learning_rate=0.0002, feature_matching=True)
+    losses = dcgan.loss(input_images, feature_matching=True)
+    train_op = dcgan.train(losses)
 
-    g_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
-    g_saver = tf.train.Saver(g_variables)
+    g_saver = tf.train.Saver(dcgan.g.variables)
+    d_saver = tf.train.Saver(dcgan.d.variables)
     g_checkpoint_path = os.path.join(FLAGS.train_dir, 'g.ckpt')
+    d_checkpoint_path = os.path.join(FLAGS.train_dir, 'd.ckpt')
     with tf.Session() as sess:
         # restore or initialize generator
         sess.run(tf.initialize_all_variables())
@@ -65,9 +67,6 @@ def main(argv=None):
 
         if FLAGS.is_train:
             # restore or initialize discriminator
-            d_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='d')
-            d_saver = tf.train.Saver(d_variables)
-            d_checkpoint_path = os.path.join(FLAGS.train_dir, 'd.ckpt')
             if os.path.exists(d_checkpoint_path):
                 print('restore variables:')
                 for v in d_variables:
@@ -76,7 +75,7 @@ def main(argv=None):
 
             # setup for monitoring
             sample_z = sess.run(tf.random_uniform([dcgan.batch_size, dcgan.z_dim], minval=-1.0, maxval=1.0))
-            images = dcgan.generate_images(4, 4, inputs=sample_z)
+            images = dcgan.sample_images(4, 4, inputs=sample_z)
 
             # start training
             tf.train.start_queue_runners(sess=sess)
@@ -87,7 +86,7 @@ def main(argv=None):
             print()
             for step in range(FLAGS.max_steps):
                 start_time = time.time()
-                _, g_loss_value, d_loss_value = sess.run([train_op, g_loss, d_loss])
+                _, g_loss_value, d_loss_value = sess.run([train_op, losses['g'], losses['d']])
                 duration = time.time() - start_time
                 format_str = '%s: step %d, loss = (G: %.8f, D: %.8f) (%.3f sec/batch)'
                 print(format_str % (datetime.now(), step, g_loss_value, d_loss_value, duration))
@@ -102,7 +101,7 @@ def main(argv=None):
                     g_saver.save(sess, g_checkpoint_path, global_step=step)
                     d_saver.save(sess, d_checkpoint_path, global_step=step)
         else:
-            generated = sess.run(dcgan.generate_images(8, 8))
+            generated = sess.run(dcgan.sample_images(8, 8))
             filename = os.path.join(FLAGS.images_dir, 'out.jpg')
             with open(filename, 'wb') as f:
                 print('write to %s' % filename)
