@@ -45,12 +45,11 @@ def inputs(batch_size, f_size):
 
 def main(argv=None):
     dcgan = DCGAN(
-        batch_size=128, f_size=6, z_dim=100,
-        gdepth1=512, gdepth2=256, gdepth3=128, gdepth4=64,
-        ddepth1=64,  ddepth2=128, ddepth3=256, ddepth4=512)
+        batch_size=128, f_size=6, z_dim=20,
+        gdepth1=216, gdepth2=144, gdepth3=96,  gdepth4=64,
+        ddepth1=64,  ddepth2=96,  ddepth3=144, ddepth4=216)
     input_images, num_samples = inputs(dcgan.batch_size, dcgan.f_size)
-    losses = dcgan.loss(input_images, feature_matching=True)
-    train_op = dcgan.train(losses)
+    train_op = dcgan.build(input_images, feature_matching=True)
 
     g_saver = tf.train.Saver(dcgan.g.variables)
     d_saver = tf.train.Saver(dcgan.d.variables)
@@ -61,7 +60,7 @@ def main(argv=None):
         sess.run(tf.initialize_all_variables())
         if os.path.exists(g_checkpoint_path):
             print('restore variables:')
-            for v in g_variables:
+            for v in dcgan.g.variables:
                 print('  ' + v.name)
             g_saver.restore(sess, g_checkpoint_path)
 
@@ -69,7 +68,7 @@ def main(argv=None):
             # restore or initialize discriminator
             if os.path.exists(d_checkpoint_path):
                 print('restore variables:')
-                for v in d_variables:
+                for v in dcgan.d.variables:
                     print('  ' + v.name)
                 d_saver.restore(sess, d_checkpoint_path)
 
@@ -86,10 +85,10 @@ def main(argv=None):
             print()
             for step in range(FLAGS.max_steps):
                 start_time = time.time()
-                _, g_loss_value, d_loss_value = sess.run([train_op, losses['g'], losses['d']])
+                _, g_loss, d_loss = sess.run([train_op, dcgan.losses['g'], dcgan.losses['d']])
                 duration = time.time() - start_time
                 format_str = '%s: step %d, loss = (G: %.8f, D: %.8f) (%.3f sec/batch)'
-                print(format_str % (datetime.now(), step, g_loss_value, d_loss_value, duration))
+                print(format_str % (datetime.now(), step, g_loss, d_loss, duration))
 
                 # save generated images
                 if step % 100 == 0:
