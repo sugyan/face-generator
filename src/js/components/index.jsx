@@ -8,7 +8,7 @@ import Face from './face.jsx';
 export default class Index extends React.Component {
     constructor(props) {
         super(props);
-        this.z_dim = 40;
+        this.z_dim = 20;
         this.state = {
             faces: List()
         };

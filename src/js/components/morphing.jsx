@@ -47,7 +47,7 @@ class SelectFaceDialog extends React.Component {
 export default class Morphing extends React.Component {
     constructor(props) {
         super(props);
-        this.z_dim = 40;
+        this.z_dim = 20;
         this.state = {
             dialog: Map({
                 open: false,

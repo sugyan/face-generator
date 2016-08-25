@@ -23,7 +23,7 @@ if not os.path.isfile(FLAGS.checkpoint_path):
 # DCGAN instance with specified batch size
 def get_dcgan(batch_size):
     return DCGAN(
-        batch_size=batch_size, f_size=6, z_dim=40,
+        batch_size=batch_size, f_size=6, z_dim=20,
         gdepth1=216, gdepth2=144, gdepth3=96, gdepth4=64,
         ddepth1=0,   ddepth2=0,   ddepth3=0,  ddepth4=0)
 
@@ -55,7 +55,7 @@ sess = tf.Session()
 # setup single image generator
 dcgan = get_dcgan(1)
 inputs = tf.placeholder(tf.float32, (dcgan.batch_size, dcgan.z_dim))
-generate_image = dcgan.generate_images(1, 1, inputs)
+generate_image = dcgan.sample_images(1, 1, inputs)
 
 
 # restore variables
