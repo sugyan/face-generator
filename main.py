@@ -49,7 +49,7 @@ def main(argv=None):
         gdepth1=216, gdepth2=144, gdepth3=96,  gdepth4=64,
         ddepth1=64,  ddepth2=96,  ddepth3=144, ddepth4=216)
     input_images, num_samples = inputs(dcgan.batch_size, dcgan.f_size)
-    train_op = dcgan.build(input_images, feature_matching=True)
+    train_op = dcgan.build(input_images, feature_matching=1e-1)
 
     g_saver = tf.train.Saver(dcgan.g.variables)
     d_saver = tf.train.Saver(dcgan.d.variables)
