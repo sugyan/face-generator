@@ -45,11 +45,11 @@ def inputs(batch_size, f_size):
 
 def main(argv=None):
     dcgan = DCGAN(
-        batch_size=128, f_size=6, z_dim=20,
+        batch_size=128, f_size=6, z_dim=10,
         gdepth1=216, gdepth2=144, gdepth3=96,  gdepth4=64,
         ddepth1=64,  ddepth2=96,  ddepth3=144, ddepth4=216)
     input_images, num_samples = inputs(dcgan.batch_size, dcgan.f_size)
-    train_op = dcgan.build(input_images, feature_matching=1e-1)
+    train_op = dcgan.build(input_images, feature_matching=0.1)
 
     g_saver = tf.train.Saver(dcgan.g.variables)
     d_saver = tf.train.Saver(dcgan.d.variables)
@@ -74,7 +74,7 @@ def main(argv=None):
 
             # setup for monitoring
             sample_z = sess.run(tf.random_uniform([dcgan.batch_size, dcgan.z_dim], minval=-1.0, maxval=1.0))
-            images = dcgan.sample_images(4, 4, inputs=sample_z)
+            images = dcgan.sample_images(5, 5, inputs=sample_z)
 
             # start training
             tf.train.start_queue_runners(sess=sess)
