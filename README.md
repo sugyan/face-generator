@@ -23,5 +23,14 @@ generate faces by DCGAN.
 
 ### Usage ###
 
+training:
+
+    $ python3 main.py
+
+generating faces:
+
     $ python3 main.py --is_train False
 
+generating animated GIF:
+
+    $ convert -delay 15 images/*.jpg -gravity North -splice 0x20 -annotate +0+2 '%t' images/out.gif

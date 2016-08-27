@@ -16,7 +16,7 @@ tf.app.flags.DEFINE_string('data_dir', 'data',
                            """Path to the TFRecord data directory.""")
 tf.app.flags.DEFINE_integer('num_examples_per_epoch_for_train', 5000,
                             """number of examples for train""")
-tf.app.flags.DEFINE_integer('max_steps', 5000,
+tf.app.flags.DEFINE_integer('max_steps', 10001,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_boolean('is_train', True,
                             """True for training, False for generate only""")
