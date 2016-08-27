@@ -92,7 +92,7 @@ def main(argv=None):
 
                 # save generated images
                 if step % 100 == 0:
-                    filename = os.path.join(FLAGS.images_dir, '%04d.jpg' % step)
+                    filename = os.path.join(FLAGS.images_dir, '%05d.jpg' % step)
                     with open(filename, 'wb') as f:
                         f.write(sess.run(images))
                 # save variables
