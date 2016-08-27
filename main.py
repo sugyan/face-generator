@@ -41,14 +41,14 @@ def inputs(batch_size, f_size):
         batch_size=batch_size,
         capacity=min_queue_examples + 3 * batch_size,
         min_after_dequeue=min_queue_examples)
-    return tf.sub(tf.div(tf.image.resize_images(images, f_size * 2 ** 4, f_size * 2 ** 4), 127.5), 1.0), len(files) * 1000
+    return tf.sub(tf.div(tf.image.resize_images(images, f_size * 2 ** 4, f_size * 2 ** 4), 127.5), 1.0)
 
 def main(argv=None):
     dcgan = DCGAN(
         batch_size=128, f_size=6, z_dim=10,
         gdepth1=216, gdepth2=144, gdepth3=96,  gdepth4=64,
         ddepth1=64,  ddepth2=96,  ddepth3=144, ddepth4=216)
-    input_images, num_samples = inputs(dcgan.batch_size, dcgan.f_size)
+    input_images = inputs(dcgan.batch_size, dcgan.f_size)
     train_op = dcgan.build(input_images, feature_matching=0.1)
 
     g_saver = tf.train.Saver(dcgan.g.variables)
@@ -78,11 +78,6 @@ def main(argv=None):
 
             # start training
             tf.train.start_queue_runners(sess=sess)
-            # shuffle inputs
-            for _ in range(num_samples // dcgan.batch_size + 1):
-                sess.run(input_images)
-                print('.', end='', flush=True)
-            print()
             for step in range(FLAGS.max_steps):
                 start_time = time.time()
                 _, g_loss, d_loss = sess.run([train_op, dcgan.losses['g'], dcgan.losses['d']])
