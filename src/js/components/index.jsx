@@ -8,13 +8,12 @@ import Face from './face.jsx';
 export default class Index extends React.Component {
     constructor(props) {
         super(props);
-        this.z_dim = 20;
         this.state = {
             faces: List()
         };
     }
     generate() {
-        const z = Array.from(Array(this.z_dim), () => Math.random() * 2 - 1);
+        const z = Array.from(Array(this.props.route.z_dim), () => Math.random() * 2 - 1);
         const i = this.state.faces.size;
         this.setState({
             faces: this.state.faces.push(Map({ z: z }))

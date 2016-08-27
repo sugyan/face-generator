@@ -3,7 +3,7 @@ import io
 import os
 import urllib.request
 
-from flask import Flask, jsonify, request
+from flask import Flask, render_template, jsonify, request
 import numpy as np
 import tensorflow as tf
 
@@ -23,7 +23,7 @@ if not os.path.isfile(FLAGS.checkpoint_path):
 # DCGAN instance with specified batch size
 def get_dcgan(batch_size):
     return DCGAN(
-        batch_size=batch_size, f_size=6, z_dim=20,
+        batch_size=batch_size, f_size=6, z_dim=10,
         gdepth1=216, gdepth2=144, gdepth3=96, gdepth4=64,
         ddepth1=0,   ddepth2=0,   ddepth3=0,  ddepth4=0)
 
@@ -81,11 +81,20 @@ def image():
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    return render_template('index.html')
 
 @app.route('/<foo>')
 def index(foo):
     return root()
+
+@app.context_processor
+def processor():
+    def javascript(filename):
+        if 'DEBUG' in os.environ:
+            return 'http://localhost:8080/static/js/' + filename
+        else:
+            return '/static/js/' + filename
+    return dict(js=javascript)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=FLAGS.port)

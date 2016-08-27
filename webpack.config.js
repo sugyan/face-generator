@@ -22,11 +22,7 @@ const config = {
         ]
     },
     devServer: {
-        proxy: {
-            '/api/*': {
-                target: 'http://localhost:' + (process.env.PORT || 5000)
-            }
-        }
+        inline: true
     }
 };
 

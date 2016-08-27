@@ -1,5 +1,5 @@
 import React from 'react';
-import { Router, Route, IndexRoute, hashHistory } from 'react-router';
+import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import AppBar from 'material-ui/AppBar';
@@ -27,13 +27,17 @@ class Common extends React.Component {
 }
 
 export default class App extends React.Component {
+    constructor() {
+        super();
+        this.z_dim = 10;
+    }
     render() {
         return (
             <MuiThemeProvider muiTheme={getMuiTheme()}>
-              <Router history={hashHistory}>
+              <Router history={browserHistory}>
                 <Route path="/" component={Common}>
-                  <IndexRoute component={Index} />
-                  <Route path="morphing" component={Morphing} />
+                  <IndexRoute component={Index} z_dim={this.z_dim} />
+                  <Route path="morphing" component={Morphing} z_dim={this.z_dim} />
                 </Route>
               </Router>
             </MuiThemeProvider>

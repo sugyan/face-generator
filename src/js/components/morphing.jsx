@@ -47,7 +47,6 @@ class SelectFaceDialog extends React.Component {
 export default class Morphing extends React.Component {
     constructor(props) {
         super(props);
-        this.z_dim = 20;
         this.state = {
             dialog: Map({
                 open: false,
@@ -58,7 +57,7 @@ export default class Morphing extends React.Component {
     }
     handleClickAddButton() {
         const faces = List(Array.from(Array(25), () => Map({
-            z: Array.from(Array(this.z_dim), () => Math.random() * 2 - 1)
+            z: Array.from(Array(this.props.route.z_dim), () => Math.random() * 2 - 1)
         })));
         this.setState({
             dialog: this.state.dialog
