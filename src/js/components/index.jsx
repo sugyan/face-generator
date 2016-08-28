@@ -40,7 +40,13 @@ export default class Index extends React.Component {
         });
     }
     render() {
-        const faces = this.state.faces.map((face, i) => <Face key={i} src={face.get('src')} />);
+        const faces = this.state.faces.map((face, i) => {
+            return (
+                <div key={i} style={{ float: 'left' }}>
+                  <Face src={face.get('src')} />
+                </div>
+            );
+        });
         return (
             <div>
               <h2>Generator</h2>

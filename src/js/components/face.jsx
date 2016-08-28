@@ -8,7 +8,7 @@ export default class Face extends React.Component {
     }
     render() {
         return (
-            <Paper zDepth={2} style={{ float: 'left', height: 96, width: 96, margin: 5 }}>
+            <Paper zDepth={2} style={{ height: 96, width: 96, margin: 5 }}>
               {this.props.src
                ? <img src={this.props.src} />
                : <CircularProgress size={1.92 / 1.4} />}

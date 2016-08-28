@@ -19,15 +19,20 @@ class SelectFaceDialog extends React.Component {
             const src = face.get('src');
             if (src) {
                 return (
-                    <FlatButton
-                        key={i}
-                        style={{ height: null, float: 'left' }}
-                        onTouchTap={this.handleTouchTapFace.bind(this, i)}>
-                      <Face src={face.get('src')} />
-                    </FlatButton>
+                    <div key={i} style={{ float: 'left' }}>
+                      <FlatButton
+                          style={{ height: null }}
+                          onTouchTap={this.handleTouchTapFace.bind(this, i)}>
+                        <Face src={face.get('src')} />
+                      </FlatButton>
+                    </div>
                 );
             } else {
-                return <Face key={i} />;
+                return (
+                    <div key={i} style={{ float: 'left' }}>
+                      <Face />
+                    </div>
+                );
             }
         });
         return (

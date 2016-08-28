@@ -32,7 +32,7 @@ def get_moments():
     # graph for 128 batch
     with tf.Graph().as_default() as g:
         with tf.Session() as sess:
-            dcgan = get_dcgan(128)
+            dcgan = get_dcgan(256)
             dcgan.g(dcgan.z)
             variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='g')
             saver = tf.train.Saver(variables)

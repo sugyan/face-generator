@@ -7,6 +7,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 
 import Index from './components/index.jsx';
 import Morphing from './components/morphing.jsx';
+import Lab from './components/lab.jsx';
 
 injectTapEventPlugin();
 
@@ -38,6 +39,7 @@ export default class App extends React.Component {
                 <Route path="/" component={Common}>
                   <IndexRoute component={Index} z_dim={this.z_dim} />
                   <Route path="morphing" component={Morphing} z_dim={this.z_dim} />
+                  <Route path="lab" components={Lab} z_dim={this.z_dim} />
                 </Route>
               </Router>
             </MuiThemeProvider>
