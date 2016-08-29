@@ -2,8 +2,8 @@
   "name": "face-generator",
   "version": "1.0.0",
   "engines": {
-    "node": "4.4.5",
-    "npm": "2.15.1"
+    "node": "4.5.0",
+    "npm": "2.15.9"
   },
   "description": "",
   "main": "",
