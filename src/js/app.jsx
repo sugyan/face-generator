@@ -30,7 +30,7 @@ class Common extends React.Component {
 export default class App extends React.Component {
     constructor() {
         super();
-        this.z_dim = 10;
+        this.z_dim = 16;
     }
     render() {
         return (

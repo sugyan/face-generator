@@ -2,7 +2,6 @@ import React from 'react';
 import Slider from 'material-ui/Slider';
 import RaisedButton from 'material-ui/RaisedButton';
 import { List } from 'immutable';
-import { sprintf } from 'sprintf-js';
 
 import Face from './face.jsx';
 
@@ -10,7 +9,7 @@ export default class Lab extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            z: List(Array.from(Array(this.props.route.z_dim), () => Math.random() * 2 - 1)),
+            z: List(Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255))),
             face: null
         };
     }
@@ -23,7 +22,7 @@ export default class Lab extends React.Component {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(this.state.z)
+            body: JSON.stringify(this.state.z.map((e) => e / 127.5 - 1.0))
         }).then((response) => {
             return response.json();
         }).then((json) => {
@@ -39,7 +38,7 @@ export default class Lab extends React.Component {
     }
     handleClickButton() {
         this.setState({
-            z: List(Array.from(Array(this.props.route.z_dim), () => Math.random() * 2 - 1))
+            z: List(Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255)))
         }, this.updateFace);
     }
     render() {
@@ -48,12 +47,13 @@ export default class Lab extends React.Component {
                 <div key={i}>
                   <Slider
                       value={e}
-                      min={-1.0}
-                      max={+1.0}
+                      min={0}
+                      max={255}
+                      step={1}
                       axis={'y'}
-                      style={{ height: 200, width: 60 }}
+                      style={{ height: 256, width: 40 }}
                       onChange={this.handleChangeSlider.bind(this, i)} />
-                  <p>{sprintf('%.2f', e)}</p>
+                  <p>{e}</p>
                 </div>
             );
         });
@@ -62,7 +62,7 @@ export default class Lab extends React.Component {
               <div>
                 <Face src={this.state.face} />
               </div>
-              <div style={{ display: 'flex', height: 250, width: 600, flexDirection: 'row', justifyContent: 'space-around' }}>
+              <div style={{ display: 'flex', height: 300, width: 900, flexDirection: 'row', justifyContent: 'space-around' }}>
                 {sliders}
               </div>
               <br />

@@ -33,7 +33,6 @@
     "react-dom": "^15.3.1",
     "react-router": "^2.7.0",
     "react-tap-event-plugin": "^1.0.0",
-    "sprintf-js": "^1.0.3",
     "webpack": "^1.13.2",
     "whatwg-fetch": "^1.0.0"
   },
