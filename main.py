@@ -45,7 +45,7 @@ def inputs(batch_size, f_size):
 
 def main(argv=None):
     dcgan = DCGAN(
-        batch_size=128, f_size=6, z_dim=10,
+        batch_size=128, f_size=6, z_dim=16,
         gdepth1=216, gdepth2=144, gdepth3=96,  gdepth4=64,
         ddepth1=64,  ddepth2=96,  ddepth3=144, ddepth4=216)
     input_images = inputs(dcgan.batch_size, dcgan.f_size)

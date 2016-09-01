@@ -1,6 +1,9 @@
 import React from 'react';
 import Slider from 'material-ui/Slider';
 import RaisedButton from 'material-ui/RaisedButton';
+import { GridList, GridTile } from 'material-ui/GridList';
+import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
+
 import { List } from 'immutable';
 
 import Face from './face.jsx';
@@ -42,30 +45,45 @@ export default class Lab extends React.Component {
         }, this.updateFace);
     }
     render() {
-        const sliders = this.state.z.map((e, i) => {
+        const n = this.state.z.size / 2;
+        const tiles = [this.state.z.slice(0, n), this.state.z.slice(n)].map((slice, i) => {
+            const rows = slice.map((e, j) => {
+                return (
+                    <TableRow key={j} selectable={false}>
+                      <TableRowColumn style={{ width: '100%' }}>
+                        <Slider
+                            value={e}
+                            min={0}
+                            max={255}
+                            step={1}
+                            style={{ height: 40, width: '100%' }}
+                            onChange={this.handleChangeSlider.bind(this, i * n + j)} />
+                      </TableRowColumn>
+                      <TableRowColumn style={{ width: '2em' }}>
+                        {e}
+                      </TableRowColumn>
+                    </TableRow>
+                );
+            });
             return (
-                <div key={i}>
-                  <Slider
-                      value={e}
-                      min={0}
-                      max={255}
-                      step={1}
-                      axis={'y'}
-                      style={{ height: 256, width: 40 }}
-                      onChange={this.handleChangeSlider.bind(this, i)} />
-                  <p>{e}</p>
-                </div>
+                <GridTile key={i}>
+                  <Table>
+                    <TableBody displayRowCheckbox={false}>
+                      {rows}
+                    </TableBody>
+                  </Table>
+                </GridTile>
             );
         });
         return (
             <div>
-              <div>
-                <Face src={this.state.face} />
-              </div>
-              <div style={{ display: 'flex', height: 300, width: 900, flexDirection: 'row', justifyContent: 'space-around' }}>
-                {sliders}
-              </div>
-              <br />
+              <Face src={this.state.face} />
+              <hr />
+              <GridList
+                  cols={2}
+                  cellHeight={65 * n + 20}>
+                {tiles}
+              </GridList>
               <RaisedButton label="random" primary={true} onTouchTap={this.handleClickButton.bind(this)} />
             </div>
         );

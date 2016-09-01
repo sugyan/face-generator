@@ -24,8 +24,8 @@ if not os.path.isfile(FLAGS.checkpoint_path):
 def get_dcgan(batch_size):
     return DCGAN(
         batch_size=batch_size, f_size=6, z_dim=16,
-        gdepth1=343, gdepth2=196, gdepth3=112, gdepth4=64,
-        ddepth1=0,   ddepth2=0,   ddepth3=0,   ddepth4=0)
+        gdepth1=216, gdepth2=144, gdepth3=96, gdepth4=64,
+        ddepth1=0,   ddepth2=0,   ddepth3=0,  ddepth4=0)
 
 # moments dictionary { <Tensor.name>: <values> }
 def get_moments():
