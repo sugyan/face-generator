@@ -48,9 +48,9 @@ export default class Lab extends React.Component {
         this.setState({
             z: this.state.z.set(i, value)
         }, () => {
-            this.hex = this.calcHex();
+            const hex = this.calcHex();
             setTimeout(() => {
-                if (this.hex === this.calcHex()) {
+                if (hex === this.calcHex()) {
                     this.updateFace();
                 }
             }, 200);
