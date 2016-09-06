@@ -1,8 +1,10 @@
 import React from 'react';
-import { Router, Route, IndexRoute, browserHistory } from 'react-router';
+import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import AppBar from 'material-ui/AppBar';
+import Drawer from 'material-ui/Drawer';
+import MenuItem from 'material-ui/MenuItem';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
 import Index from './components/index.jsx';
@@ -12,16 +14,26 @@ import Lab from './components/lab.jsx';
 injectTapEventPlugin();
 
 class Common extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            drawer: false
+        };
+    }
     render() {
         return (
             <div>
               <AppBar
                   title="Face Generator"
-                  showMenuIconButton={false}>
-              </AppBar>
+                  onTitleTouchTap={() => { /* TODO */ }}
+                  onLeftIconButtonTouchTap={() => this.setState({ drawer: true })} />
               <div style={{ margin: '24px 36px' }}>
                 {this.props.children}
               </div>
+              <Drawer open={this.state.drawer}>
+                <AppBar onLeftIconButtonTouchTap={() => this.setState({ drawer: false })} />
+                <MenuItem><Link to="lab">Lab</Link></MenuItem>
+              </Drawer>
             </div>
         );
     }
