@@ -2,15 +2,18 @@
 
 generate faces by DCGAN.
 
+[![](http://img.youtube.com/vi/Svk0SxyNdr8/0.jpg)](https://www.youtube.com/watch?v=Svk0SxyNdr8)
+
 
 ### Prerequisits ###
 
-- Python >= 3.5
+- Python >= 2.7 or 3.5
+- TensorFlow >= 0.9
 
 
 ### Dependencies ###
 
-- https://github.com/sugyan/tf-dcgan
+- https://github.com/sugyan/tf-dcgan (DCGAN implementation)
 
 
 ### Setup ###
@@ -18,19 +21,15 @@ generate faces by DCGAN.
     $ git clone https://github.com/sugyan/face-generator.git
     $ cd face-generator
     $ git submodule update --init
-    $ pip3 install --upgrade -r requirements.txt
+    $ pip install --upgrade -r requirements.txt
 
 
 ### Usage ###
 
 training:
 
-    $ python3 main.py
+    $ python main.py
 
 generating faces:
 
-    $ python3 main.py --is_train False
-
-generating animated GIF:
-
-    $ convert -delay 15 images/*.jpg -gravity North -splice 0x20 -annotate +0+2 '%t' images/out.gif
+    $ python main.py --is_train False
