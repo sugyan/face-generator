@@ -4,6 +4,8 @@ import os
 import urllib.request
 
 from flask import Flask, render_template, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import JSON
 import numpy as np
 import tensorflow as tf
 
@@ -64,9 +66,26 @@ saver = tf.train.Saver(variables)
 saver.restore(sess, FLAGS.checkpoint_path)
 
 # Flask setup
+
 app = Flask(__name__)
 app.debug = True
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['DEFAULT_FEED_DICT'] = {}
+db = SQLAlchemy(app)
+
+class Inputs(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String())
+    values = db.Column(JSON)
+
+    def __init__(self, name, values):
+        self.name = name
+        self.values = values
+
+    def __repr__(self):
+        return '<Inputs %r>' % self.name
+
 for op in sess.graph.get_operations():
     for output in op.outputs:
         if output.name in moments:
