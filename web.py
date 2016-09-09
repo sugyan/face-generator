@@ -74,7 +74,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['DEFAULT_FEED_DICT'] = {}
 db = SQLAlchemy(app)
 
-class Inputs(db.Model):
+class Offsets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
     values = db.Column(JSON)
@@ -84,12 +84,23 @@ class Inputs(db.Model):
         self.values = values
 
     def __repr__(self):
-        return '<Inputs %r>' % self.name
+        return '<Offsets %r>' % self.name
+
+    def serialize(self):
+        return {
+            'id'    : self.id,
+            'name'  : self.name,
+            'values': self.values,
+        }
 
 for op in sess.graph.get_operations():
     for output in op.outputs:
         if output.name in moments:
             app.config['DEFAULT_FEED_DICT'][output] = moments[output.name]
+
+@app.route('/api/offsets')
+def offsets():
+    return jsonify(offsets=[o.serialize() for o in Offsets.query.order_by(Offsets.id).all()])
 
 @app.route('/api/generate', methods=['POST'])
 def image():

@@ -4,8 +4,8 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import { GridList, GridTile } from 'material-ui/GridList';
 import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
-
 import { List } from 'immutable';
+import 'whatwg-fetch';
 
 import Face from './face.jsx';
 
