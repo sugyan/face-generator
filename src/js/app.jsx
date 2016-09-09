@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Router, Route, IndexRoute, browserHistory, withRouter } from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
@@ -10,10 +11,11 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import Index from './components/index.jsx';
 import Morphing from './components/morphing.jsx';
 import Lab from './components/lab.jsx';
+import { fetchOffsets } from './actions';
 
 injectTapEventPlugin();
 
-class Common extends React.Component {
+class Common extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -25,6 +27,13 @@ class Common extends React.Component {
             drawer: false
         });
         this.props.router.push(path);
+    }
+    componentDidMount() {
+        fetch('/api/offsets').then((response) => {
+            return response.json();
+        }).then((json) => {
+            this.props.dispatch(fetchOffsets(json.offsets));
+        });
     }
     render() {
         return (
@@ -47,16 +56,17 @@ class Common extends React.Component {
     }
 }
 
-export default class App extends React.Component {
+export default class App extends Component {
     constructor() {
         super();
         this.z_dim = 16;
     }
     render() {
+        const commonComponent = connect()(withRouter(Common));
         return (
             <MuiThemeProvider muiTheme={getMuiTheme()}>
               <Router history={browserHistory}>
-                <Route path="/" component={withRouter(Common)}>
+                <Route path="/" component={commonComponent}>
                   <IndexRoute component={Index} z_dim={this.z_dim} />
                   <Route path="morphing" component={Morphing} z_dim={this.z_dim} />
                   <Route path="lab" components={Lab} z_dim={this.z_dim} />

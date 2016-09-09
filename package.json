@@ -31,8 +31,10 @@
     "material-ui": "^0.15.4",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
+    "react-redux": "^4.4.5",
     "react-router": "^2.7.0",
     "react-tap-event-plugin": "^1.0.0",
+    "redux": "^3.6.0",
     "webpack": "^1.13.2",
     "whatwg-fetch": "^1.0.0"
   },

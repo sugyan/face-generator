@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Slider from 'material-ui/Slider';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
@@ -9,7 +10,7 @@ import 'whatwg-fetch';
 
 import Face from './face.jsx';
 
-export default class Lab extends React.Component {
+class Lab extends Component {
     constructor(props) {
         super(props);
         const match = new RegExp(`#([0-9a-f]{${this.props.route.z_dim * 2}})`).exec(location.hash);
@@ -62,6 +63,7 @@ export default class Lab extends React.Component {
         }, this.updateFace);
     }
     render() {
+        /* console.log(this.props.offsets);*/
         const n = this.state.z.size / 2;
         const tiles = [this.state.z.slice(0, n), this.state.z.slice(n)].map((slice, i) => {
             const rows = slice.map((e, j) => {
@@ -113,3 +115,9 @@ export default class Lab extends React.Component {
         );
     }
 }
+
+export default connect((state) => {
+    return {
+        offsets: state.offsets
+    };
+})(Lab);
