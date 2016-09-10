@@ -5,46 +5,12 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import { GridList, GridTile } from 'material-ui/GridList';
 import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
-import { List } from 'immutable';
 import 'whatwg-fetch';
 
 import Face from './face.jsx';
+import { labUpdateZ, labUpdateFace } from '../actions';
 
-class Lab extends Component {
-    constructor(props) {
-        super(props);
-        const match = new RegExp(`#([0-9a-f]{${this.props.route.z_dim * 2}})`).exec(location.hash);
-        this.state = {
-            z: match
-             ? List(Array.from(Array(props.route.z_dim), (_, i) => parseInt(match[1].substr(i * 2, 2), 16)))
-             : List(Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255))),
-            face: null
-        };
-    }
-    componentDidMount() {
-        this.updateFace();
-    }
-    calcHex() {
-        return this.state.z.map((e) => ('0' + e.toString(16)).slice(-2)).join('');
-    }
-    updateFace() {
-        fetch('/api/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(this.state.z.map((e) => e / 127.5 - 1.0))
-        }).then((response) => {
-            return response.json();
-        }).then((json) => {
-            const url = new URL(location);
-            url.hash = this.calcHex();
-            history.replaceState(null, null, url.href);
-            this.setState({
-                face: json.result
-            });
-        });
-    }
+class Sliders extends Component {
     handleChangeSlider(i, e, value) {
         this.setState({
             z: this.state.z.set(i, value)
@@ -57,13 +23,7 @@ class Lab extends Component {
             }, 200);
         });
     }
-    handleClickButton() {
-        this.setState({
-            z: List(Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255)))
-        }, this.updateFace);
-    }
     render() {
-        /* console.log(this.props.global.offsets);*/
         const n = this.state.z.size / 2;
         const tiles = [this.state.z.slice(0, n), this.state.z.slice(n)].map((slice, i) => {
             const rows = slice.map((e, j) => {
@@ -93,31 +53,86 @@ class Lab extends Component {
             );
         });
         return (
+            <GridList
+                cols={2}
+                cellHeight={65 * n + 20}>
+              {tiles}
+            </GridList>
+        );
+    }
+}
+
+class Lab extends Component {
+    constructor(props) {
+        super(props);
+        const match = new RegExp(`#([0-9a-f]{${this.props.route.z_dim * 2}})`).exec(location.hash);
+        const z = match
+                ? Array.from(Array(props.route.z_dim), (_, i) => parseInt(match[1].substr(i * 2, 2), 16))
+                : Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255));
+        this.props.dispatch(labUpdateZ(z));
+        this.props.updateFace(z);
+    }
+    /* componentDidMount() {
+     *     this.updateFace();
+     * }
+     * calcHex() {
+     *     return this.state.z.map((e) => ('0' + e.toString(16)).slice(-2)).join('');
+     * }
+     * updateFace() {
+     * }
+     * handleClickButton() {
+     *     this.setState({
+     *         z: List(Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255)))
+     *     }, this.updateFace);
+     * }*/
+    render() {
+        return (
             <div>
-              <Face src={this.state.face} />
-              <GridList
-                  cols={2}
-                  cellHeight={65 * n + 20}>
-                {tiles}
-              </GridList>
-              <div>
-                <TextField
-                    ref="textfield"
-                    name="url"
-                    value={location.href}
-                    floatingLabelText="Permalink"
-                    underlineShow={false}
-                    fullWidth={true}
-                    onFocus={() => { this.refs.textfield.select(); }} />
-              </div>
-              <RaisedButton label="random" primary={true} onTouchTap={this.handleClickButton.bind(this)} />
+              <Face src={this.props.lab.face} />
+              {/* 
+                  <Sliders />
+                  <div>
+                  <TextField
+                  ref="textfield"
+                  name="url"
+                  value={location.href}
+                  floatingLabelText="Permalink"
+                  underlineShow={false}
+                  fullWidth={true}
+                  onFocus={() => { this.refs.textfield.select(); }} />
+                  </div>
+                  <RaisedButton label="random" primary={true} onTouchTap={this.handleClickButton.bind(this)} /> */}
             </div>
         );
     }
 }
 
-export default connect((state) => {
+const mapStateToProps = (state) => {
     return {
-        global: state.global
+        global: state.global,
+        lab: state.lab
     };
-})(Lab);
+};
+const mapDispatchToProps = (dispatch) => {
+    return {
+        updateFace: (z) => {
+            fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(z.map((e) => e / 127.5 - 1.0))
+            }).then((response) => {
+                return response.json();
+            }).then((json) => {
+                dispatch(labUpdateFace(json.result));
+                /* const url = new URL(location);
+                 * url.hash = this.calcHex();
+                 * history.replaceState(null, null, url.href);
+                 */
+            });
+        },
+        dispatch
+    };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(Lab);

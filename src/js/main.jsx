@@ -11,5 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <Provider store={createStore(reducers)}>
           <App />
         </Provider>,
-        document.getElementById('main'));
+        document.getElementById('main')
+    );
 });
