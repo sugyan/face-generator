@@ -11,21 +11,13 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import Index from './components/index.jsx';
 import Morphing from './components/morphing.jsx';
 import Lab from './components/lab.jsx';
-import { fetchOffsets } from './actions';
+import { fetchOffsets, toggleDrawer } from './actions';
 
 injectTapEventPlugin();
 
 class Common extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            drawer: false
-        };
-    }
     handleMenuTouchTap(path) {
-        this.setState({
-            drawer: false
-        });
+        this.props.dispatch(toggleDrawer());
         this.props.router.push(path);
     }
     componentDidMount() {
@@ -41,14 +33,14 @@ class Common extends Component {
               <AppBar
                   title="Face Generator"
                   onTitleTouchTap={() => this.props.router.push('/')}
-                  onLeftIconButtonTouchTap={() => this.setState({ drawer: true })} />
+                  onLeftIconButtonTouchTap={() => this.props.dispatch(toggleDrawer())} />
               <div style={{ margin: '24px 36px' }}>
                 {this.props.children}
               </div>
-              <Drawer open={this.state.drawer}>
+              <Drawer open={this.props.common.drawer}>
                 <AppBar
                     title="Menu"
-                    onLeftIconButtonTouchTap={() => this.setState({ drawer: false })} />
+                    onLeftIconButtonTouchTap={() => this.props.dispatch(toggleDrawer())} />
                 <MenuItem onTouchTap={this.handleMenuTouchTap.bind(this, 'lab')}>Lab</MenuItem>
               </Drawer>
             </div>
@@ -62,11 +54,10 @@ export default class App extends Component {
         this.z_dim = 16;
     }
     render() {
-        const commonComponent = connect()(withRouter(Common));
         return (
             <MuiThemeProvider muiTheme={getMuiTheme()}>
               <Router history={browserHistory}>
-                <Route path="/" component={commonComponent}>
+                <Route path="/" component={connect((state) => ({ common: state.common }))(withRouter(Common))}>
                   <IndexRoute component={Index} z_dim={this.z_dim} />
                   <Route path="morphing" component={Morphing} z_dim={this.z_dim} />
                   <Route path="lab" components={Lab} z_dim={this.z_dim} />

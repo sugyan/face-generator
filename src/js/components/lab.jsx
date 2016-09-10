@@ -63,7 +63,7 @@ class Lab extends Component {
         }, this.updateFace);
     }
     render() {
-        /* console.log(this.props.offsets);*/
+        /* console.log(this.props.global.offsets);*/
         const n = this.state.z.size / 2;
         const tiles = [this.state.z.slice(0, n), this.state.z.slice(n)].map((slice, i) => {
             const rows = slice.map((e, j) => {
@@ -118,6 +118,6 @@ class Lab extends Component {
 
 export default connect((state) => {
     return {
-        offsets: state.offsets
+        global: state.global
     };
 })(Lab);
