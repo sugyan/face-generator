@@ -1,66 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import Slider from 'material-ui/Slider';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
-import { GridList, GridTile } from 'material-ui/GridList';
-import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
 import 'whatwg-fetch';
 
+import Sliders from './lab/sliders.jsx';
 import Face from './face.jsx';
 import { labUpdateZ, labUpdateFace } from '../actions';
-
-class Sliders extends Component {
-    handleChangeSlider(i, e, value) {
-        this.setState({
-            z: this.state.z.set(i, value)
-        }, () => {
-            const hex = this.calcHex();
-            setTimeout(() => {
-                if (hex === this.calcHex()) {
-                    this.updateFace();
-                }
-            }, 200);
-        });
-    }
-    render() {
-        const n = this.state.z.size / 2;
-        const tiles = [this.state.z.slice(0, n), this.state.z.slice(n)].map((slice, i) => {
-            const rows = slice.map((e, j) => {
-                return (
-                    <TableRow key={j} selectable={false}>
-                      <TableRowColumn style={{ width: '100%', paddingRight: 10 }}>
-                        <Slider
-                            value={e}
-                            min={0}
-                            max={255}
-                            step={1}
-                            style={{ width: '100%', height: 40 }}
-                            onChange={this.handleChangeSlider.bind(this, i * n + j)} />
-                      </TableRowColumn>
-                      <TableRowColumn style={{ width: '2em' }}>{e}</TableRowColumn>
-                    </TableRow>
-                );
-            });
-            return (
-                <GridTile key={i} style={{ border: '1px solid rgb(224, 224, 224)' }}>
-                  <Table>
-                    <TableBody displayRowCheckbox={false}>
-                      {rows}
-                    </TableBody>
-                  </Table>
-                </GridTile>
-            );
-        });
-        return (
-            <GridList
-                cols={2}
-                cellHeight={65 * n + 20}>
-              {tiles}
-            </GridList>
-        );
-    }
-}
 
 class Lab extends Component {
     constructor(props) {
@@ -80,17 +26,18 @@ class Lab extends Component {
      * }
      * updateFace() {
      * }
-     * handleClickButton() {
-     *     this.setState({
-     *         z: List(Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255)))
-     *     }, this.updateFace);
      * }*/
+    handleClickButton() {
+        const z = Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255));
+        this.props.dispatch(labUpdateZ(z));
+        this.props.updateFace(z);
+    }
     render() {
         return (
             <div>
               <Face src={this.props.lab.face} />
-              {/* 
-                  <Sliders />
+              <Sliders z_dim={this.props.route.z_dim} />
+              {/*
                   <div>
                   <TextField
                   ref="textfield"
@@ -99,9 +46,12 @@ class Lab extends Component {
                   floatingLabelText="Permalink"
                   underlineShow={false}
                   fullWidth={true}
-                  onFocus={() => { this.refs.textfield.select(); }} />
-                  </div>
-                  <RaisedButton label="random" primary={true} onTouchTap={this.handleClickButton.bind(this)} /> */}
+                  onFocus={() => { this.refs.textfield.select(); }} /> */}
+              <div>
+                <TextField
+                    name="url"/>
+              </div>
+              <RaisedButton label="random" primary={true} onTouchTap={this.handleClickButton.bind(this)} />
             </div>
         );
     }
