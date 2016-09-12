@@ -31,7 +31,7 @@ class Common extends Component {
         return (
             <div>
               <AppBar
-                  title="Face Generator"
+                  title={<span style={{ cursor: 'pointer' }}>Face Generator</span>}
                   onTitleTouchTap={() => this.props.router.push('/')}
                   onLeftIconButtonTouchTap={() => this.props.dispatch(toggleDrawer())} />
               <div style={{ margin: '24px 36px' }}>

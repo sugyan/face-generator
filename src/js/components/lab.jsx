@@ -35,7 +35,7 @@ class Lab extends Component {
                 <TextField
                     ref="textfield"
                     name="url"
-                    value={this.props.lab.url}
+                    value={this.props.lab.href}
                     floatingLabelText="Permalink"
                     underlineShow={true}
                     fullWidth={true}
