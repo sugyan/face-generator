@@ -18,38 +18,29 @@ class Lab extends Component {
         this.props.dispatch(labUpdateZ(z));
         this.props.updateFace(z);
     }
-    /* componentDidMount() {
-     *     this.updateFace();
-     * }
-     * calcHex() {
-     *     return this.state.z.map((e) => ('0' + e.toString(16)).slice(-2)).join('');
-     * }
-     * updateFace() {
-     * }
-     * }*/
     handleClickButton() {
         const z = Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255));
         this.props.dispatch(labUpdateZ(z));
         this.props.updateFace(z);
     }
+    componentDidMount() {
+        this.props.dispatch(labUpdateFace(null, location.href));
+    }
     render() {
         return (
             <div>
               <Face src={this.props.lab.face} />
-              <Sliders z_dim={this.props.route.z_dim} />
-              {/*
-                  <div>
-                  <TextField
-                  ref="textfield"
-                  name="url"
-                  value={location.href}
-                  floatingLabelText="Permalink"
-                  underlineShow={false}
-                  fullWidth={true}
-                  onFocus={() => { this.refs.textfield.select(); }} /> */}
+              <Sliders z_dim={this.props.route.z_dim} updateFace={this.props.updateFace} />
               <div>
                 <TextField
-                    name="url"/>
+                    ref="textfield"
+                    name="url"
+                    value={this.props.lab.url}
+                    floatingLabelText="Permalink"
+                    underlineShow={true}
+                    fullWidth={true}
+                    inputStyle={{ fontFamily: 'monospace' }}
+                    onFocus={() => { this.refs.textfield.select(); }} />
               </div>
               <RaisedButton label="random" primary={true} onTouchTap={this.handleClickButton.bind(this)} />
             </div>
@@ -75,11 +66,11 @@ const mapDispatchToProps = (dispatch) => {
             }).then((response) => {
                 return response.json();
             }).then((json) => {
-                dispatch(labUpdateFace(json.result));
-                /* const url = new URL(location);
-                 * url.hash = this.calcHex();
-                 * history.replaceState(null, null, url.href);
-                 */
+                const url = new URL(location);
+                url.hash = z.map((e) => ('0' + e.toString(16)).slice(-2)).join('');
+                history.replaceState(null, null, url.href);
+
+                dispatch(labUpdateFace(json.result, url.href));
             });
         },
         dispatch

@@ -1,6 +1,9 @@
 import { combineReducers } from 'redux';
 
-import { FETCH_OFFSETS, TOGGLE_DRAWER, LAB_UPDATE_Z, LAB_UPDATE_FACE } from './actions';
+import {
+    FETCH_OFFSETS, TOGGLE_DRAWER,
+    LAB_UPDATE_Z, LAB_UPDATE_FACE
+} from './actions';
 
 export default combineReducers({
     global: (state = {
@@ -29,7 +32,8 @@ export default combineReducers({
     },
     lab: (state = {
         face: null,
-        z: []
+        z: [],
+        href: ''
     }, action) => {
         switch (action.type) {
         case LAB_UPDATE_Z:
@@ -38,7 +42,8 @@ export default combineReducers({
             });
         case LAB_UPDATE_FACE:
             return Object.assign({}, state, {
-                face: action.src
+                face: action.src,
+                href: action.href
             });
         default:
             return state;

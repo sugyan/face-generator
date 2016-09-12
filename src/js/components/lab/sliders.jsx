@@ -11,16 +11,13 @@ class Sliders extends Component {
         const z = this.props.lab.z;
         z[i] = value;
         this.props.dispatch(labUpdateZ(z));
-        /* this.setState({
-         *     z: this.state.z.set(i, value)
-         * }, () => {
-         *     const hex = this.calcHex();
-         *     setTimeout(() => {
-         *         if (hex === this.calcHex()) {
-         *             this.updateFace();
-         *         }
-         *     }, 200);
-         * });*/
+
+        const key = z.join('-');
+        setTimeout(() => {
+            if (key === z.join('-')) {
+                this.props.updateFace(z);
+            }
+        }, 200);
     }
     render() {
         const n = this.props.z_dim / 2;

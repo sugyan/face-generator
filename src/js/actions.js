@@ -15,6 +15,6 @@ export const labUpdateZ = (z) => {
     return { type: LAB_UPDATE_Z, z };
 };
 
-export const labUpdateFace = (src) => {
-    return { type: LAB_UPDATE_FACE, src };
+export const labUpdateFace = (src, href) => {
+    return { type: LAB_UPDATE_FACE, src, href };
 };
