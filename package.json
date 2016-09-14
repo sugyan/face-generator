@@ -32,13 +32,13 @@
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
     "react-redux": "^4.4.5",
-    "react-router": "^2.8.0",
+    "react-router": "^2.8.1",
     "react-tap-event-plugin": "^1.0.0",
     "redux": "^3.6.0",
     "webpack": "^1.13.2",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {
-    "webpack-dev-server": "^1.14.1"
+    "webpack-dev-server": "^1.15.1"
   }
 }
