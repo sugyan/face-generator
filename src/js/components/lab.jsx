@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
+import Checkbox from 'material-ui/Checkbox';
 import 'whatwg-fetch';
 
 import Sliders from './lab/sliders.jsx';
 import Face from './face.jsx';
-import { labUpdateZ, labUpdateFace } from '../actions';
+import { labUpdateZ, labUpdateFace, labToggleCheck } from '../actions';
 
 class Lab extends Component {
     constructor(props) {
@@ -19,6 +20,12 @@ class Lab extends Component {
         this.props.updateFace(z);
     }
     handleClickButton() {
+        const offsets = this.props.global.offsets.filter((o) => {
+            return o.name === 'default';
+        })[0];
+        if (offsets) {
+            /* TODO */
+        }
         const z = Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255));
         this.props.dispatch(labUpdateZ(z));
         this.props.updateFace(z);
@@ -43,6 +50,11 @@ class Lab extends Component {
                     onFocus={() => { this.refs.textfield.select(); }} />
               </div>
               <RaisedButton label="random" primary={true} onTouchTap={this.handleClickButton.bind(this)} />
+              <Checkbox
+                  checked={this.props.lab.checked}
+                  label="add offsets"
+                  style={{ marginTop: 10 }}
+                  onCheck={() => this.props.dispatch(labToggleCheck())}/>
             </div>
         );
     }

@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 
 import {
     FETCH_OFFSETS, TOGGLE_DRAWER,
-    LAB_UPDATE_Z, LAB_UPDATE_FACE
+    LAB_UPDATE_Z, LAB_UPDATE_FACE, LAB_TOGGLE_CHECK
 } from './actions';
 
 export default combineReducers({
@@ -33,7 +33,8 @@ export default combineReducers({
     lab: (state = {
         face: null,
         z: [],
-        href: ''
+        href: '',
+        checked: false
     }, action) => {
         switch (action.type) {
         case LAB_UPDATE_Z:
@@ -44,6 +45,10 @@ export default combineReducers({
             return Object.assign({}, state, {
                 face: action.src,
                 href: action.href
+            });
+        case LAB_TOGGLE_CHECK:
+            return Object.assign({}, state, {
+                checked: !state.checked
             });
         default:
             return state;
