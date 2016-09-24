@@ -3,7 +3,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { List, Map } from 'immutable';
 import 'whatwg-fetch';
 
-import Face from './face.jsx';
+import Face from './face';
 
 export default class Index extends React.Component {
     constructor(props) {

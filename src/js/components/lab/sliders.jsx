@@ -4,7 +4,7 @@ import { GridList, GridTile } from 'material-ui/GridList';
 import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
 import Slider from 'material-ui/Slider';
 
-import { labUpdateZ } from '../../actions';
+import { labUpdateZ } from '../../redux/actions';
 
 class Sliders extends Component {
     handleChangeSlider(i, e, value) {

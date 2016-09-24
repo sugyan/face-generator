@@ -21,6 +21,9 @@ const config = {
             }
         ]
     },
+    resolve: {
+        extensions: ['', '.js', '.jsx']
+    },
     devServer: {
         inline: true
     }

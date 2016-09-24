@@ -6,7 +6,7 @@ import Dialog from 'material-ui/Dialog';
 import { List, Map } from 'immutable';
 import 'whatwg-fetch';
 
-import Face from './face.jsx';
+import Face from './face';
 
 class SelectFaceDialog extends React.Component {
     handleTouchTapFace(i) {

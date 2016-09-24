@@ -8,10 +8,10 @@ import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
-import Index from './components/index.jsx';
-import Morphing from './components/morphing.jsx';
-import Lab from './components/lab.jsx';
-import { fetchOffsets, toggleDrawer } from './actions';
+import Index from './components/index';
+import Morphing from './components/morphing';
+import Lab from './components/lab';
+import { fetchOffsets, toggleDrawer } from './redux/actions';
 
 injectTapEventPlugin();
 

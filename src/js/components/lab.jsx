@@ -5,9 +5,9 @@ import TextField from 'material-ui/TextField';
 import Checkbox from 'material-ui/Checkbox';
 import 'whatwg-fetch';
 
-import Sliders from './lab/sliders.jsx';
-import Face from './face.jsx';
-import { labUpdateZ, labUpdateFace, labToggleCheck } from '../actions';
+import Sliders from './lab/sliders';
+import Face from './face';
+import { labUpdateZ, labUpdateFace, labToggleCheck } from '../redux/actions';
 
 class Lab extends Component {
     constructor(props) {
