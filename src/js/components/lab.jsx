@@ -20,13 +20,18 @@ class Lab extends Component {
         this.props.updateFace(z);
     }
     handleClickButton() {
-        const offsets = this.props.global.offsets.filter((o) => {
-            return o.name === 'default';
-        })[0];
-        if (offsets) {
-            /* TODO */
-        }
         const z = Array.from(Array(this.props.route.z_dim), () => Math.trunc(Math.random() * 255));
+        if (this.props.lab.checked) {
+            const offsets = this.props.global.offsets.filter((o) => {
+                return o.name === 'default';
+            })[0];
+            offsets.values.forEach((e, i) => {
+                const range = [-1, 1];
+                range[e > 0.0 ? 1 : 0] -= e;
+                const val = e + range[0] + Math.random() * (range[1] - range[0]);
+                z[i] = Math.floor((val + 1.0) / 2.0 * 255);
+            });
+        }
         this.props.dispatch(labUpdateZ(z));
         this.props.updateFace(z);
     }
