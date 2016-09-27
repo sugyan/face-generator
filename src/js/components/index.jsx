@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import RaisedButton from 'material-ui/RaisedButton';
 import { List, Map } from 'immutable';
 import 'whatwg-fetch';
 
 import Face from './face';
+import { indexAddFace } from '../redux/actions';
 
-export default class Index extends React.Component {
+class Index extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -15,6 +17,7 @@ export default class Index extends React.Component {
     generate() {
         const z = Array.from(Array(this.props.route.z_dim), () => Math.random() * 2 - 1);
         const i = this.state.faces.size;
+        this.props.dispatch(indexAddFace());
         this.setState({
             faces: this.state.faces.push(Map({ z: z }))
         });
@@ -40,7 +43,7 @@ export default class Index extends React.Component {
         });
     }
     render() {
-        const faces = this.state.faces.map((face, i) => {
+        const faces = this.props.index.faces.map((face, i) => {
             return (
                 <div key={i} style={{ float: 'left' }}>
                   <Face src={face.get('src')} />
@@ -64,3 +67,11 @@ export default class Index extends React.Component {
         );
     }
 }
+export default connect(
+    (state) => {
+        return {
+            global: state.global,
+            index: state.index
+        };
+    }
+)(Index);

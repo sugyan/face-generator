@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 
 import {
     FETCH_OFFSETS, TOGGLE_DRAWER,
+    INDEX_ADD_FACE,
     LAB_UPDATE_Z, LAB_UPDATE_FACE, LAB_TOGGLE_CHECK
 } from './actions';
 
@@ -26,6 +27,16 @@ export default combineReducers({
             return Object.assign({}, state, {
                 drawer: !state.drawer
             });
+        default:
+            return state;
+        }
+    },
+    index: (state = {
+        faces: []
+    }, action) => {
+        switch (action.type) {
+        case INDEX_ADD_FACE:
+            return state;
         default:
             return state;
         }
