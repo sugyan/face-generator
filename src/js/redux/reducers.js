@@ -1,8 +1,9 @@
 import { combineReducers } from 'redux';
+import { List, Map } from 'immutable';
 
 import {
     FETCH_OFFSETS, TOGGLE_DRAWER,
-    INDEX_ADD_FACE,
+    INDEX_ADD_FACE, INDEX_UPDATE_FACE, INDEX_CLEAR_FACES,
     LAB_UPDATE_Z, LAB_UPDATE_FACE, LAB_TOGGLE_CHECK
 } from './actions';
 
@@ -32,11 +33,21 @@ export default combineReducers({
         }
     },
     index: (state = {
-        faces: []
+        faces: List()
     }, action) => {
         switch (action.type) {
         case INDEX_ADD_FACE:
-            return state;
+            return Object.assign({}, state, {
+                faces: state.faces.push(Map({ z: action.z }))
+            });
+        case INDEX_UPDATE_FACE:
+            return Object.assign({}, state, {
+                faces: state.faces.updateIn([action.i], (e) => e.set('src', action.src))
+            });
+        case INDEX_CLEAR_FACES:
+            return Object.assign({}, state, {
+                faces: List()
+            });
         default:
             return state;
         }

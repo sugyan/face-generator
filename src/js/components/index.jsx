@@ -1,26 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import RaisedButton from 'material-ui/RaisedButton';
-import { List, Map } from 'immutable';
 import 'whatwg-fetch';
 
 import Face from './face';
-import { indexAddFace } from '../redux/actions';
+import { indexAddFace, indexUpdateFace, indexClearFaces } from '../redux/actions';
 
 class Index extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            faces: List()
-        };
-    }
     generate() {
         const z = Array.from(Array(this.props.route.z_dim), () => Math.random() * 2 - 1);
-        const i = this.state.faces.size;
-        this.props.dispatch(indexAddFace());
-        this.setState({
-            faces: this.state.faces.push(Map({ z: z }))
-        });
+        const i = this.props.index.faces.size;
+        this.props.dispatch(indexAddFace(z));
         fetch('/api/generate', {
             method: 'POST',
             headers: {
@@ -30,16 +20,7 @@ class Index extends Component {
         }).then((response) => {
             return response.json();
         }).then((json) => {
-            this.setState({
-                faces: this.state.faces.updateIn([i], (face) => {
-                    return face.set('src', json.result);
-                })
-            });
-        });
-    }
-    clear() {
-        this.setState({
-            faces: List()
+            this.props.dispatch(indexUpdateFace(i, json.result));
         });
     }
     render() {
@@ -57,7 +38,7 @@ class Index extends Component {
                 <RaisedButton onTouchTap={this.generate.bind(this)} primary={true}>
                   generate
                 </RaisedButton>
-                <RaisedButton onTouchTap={this.clear.bind(this)}>
+                <RaisedButton onTouchTap={() => this.props.dispatch(indexClearFaces())}>
                   clear
                 </RaisedButton>
               </div>
