@@ -9,6 +9,16 @@ import { indexAddFace, indexUpdateFace, indexClearFaces } from '../redux/actions
 class Index extends Component {
     generate() {
         const z = Array.from(Array(this.props.route.z_dim), () => Math.random() * 2 - 1);
+        const offsets = this.props.global.offsets.filter((o) => {
+            return o.name === 'default';
+        })[0];
+        if (offsets) {
+            offsets.values.forEach((value, i) => {
+                const range = [-1, 1];
+                range[value > 0.0 ? 1 : 0] -= value;
+                z[i] = value + range[0] + Math.random() * (range[1] - range[0]);
+            });
+        }
         const i = this.props.index.faces.size;
         this.props.dispatch(indexAddFace(z));
         fetch('/api/generate', {
