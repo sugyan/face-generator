@@ -46,11 +46,11 @@ def inputs(batch_size, f_size):
 
 def main(argv=None):
     dcgan = DCGAN(
-        batch_size=128, f_size=6, z_dim=16,
+        batch_size=128, f_size=6, z_dim=40,
         gdepth1=216, gdepth2=144, gdepth3=96,  gdepth4=64,
         ddepth1=64,  ddepth2=96,  ddepth3=144, ddepth4=216)
     input_images = inputs(dcgan.batch_size, dcgan.f_size)
-    train_op = dcgan.build(input_images, feature_matching=0.1)
+    train_op = dcgan.build(input_images, feature_matching=True)
 
     g_saver = tf.train.Saver(dcgan.g.variables)
     d_saver = tf.train.Saver(dcgan.d.variables)
@@ -101,6 +101,7 @@ def main(argv=None):
             with open(filename, 'wb') as f:
                 print('write to %s' % filename)
                 f.write(generated)
+
 
 if __name__ == '__main__':
     tf.app.run()
