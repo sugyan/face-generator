@@ -41,7 +41,7 @@ def inputs(batch_size, f_size):
         batch_size=batch_size,
         capacity=min_queue_examples + 3 * batch_size,
         min_after_dequeue=min_queue_examples)
-    return tf.sub(tf.div(tf.image.resize_images(images, [f_size * 2 ** 4, f_size * 2 ** 4]), 127.5), 1.0)
+    return tf.subtract(tf.div(tf.image.resize_images(images, [f_size * 2 ** 4, f_size * 2 ** 4]), 127.5), 1.0)
 
 
 def main(argv=None):
@@ -58,7 +58,7 @@ def main(argv=None):
     d_checkpoint_path = os.path.join(FLAGS.train_dir, 'd.ckpt')
     with tf.Session() as sess:
         # restore or initialize generator
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
         if os.path.exists(g_checkpoint_path):
             print('restore variables:')
             for v in dcgan.g.variables:
