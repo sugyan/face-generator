@@ -83,8 +83,8 @@ def main(argv=None):
             start_time = time.time()
             _, g_loss, d_loss = sess.run([train_op, losses[dcgan.g], losses[dcgan.d]])
             duration = time.time() - start_time
-            format_str = '%s: step %d, loss = (G: %.8f, D: %.8f) (%.3f sec/batch)'
-            print(format_str % (datetime.now(), step, g_loss, d_loss, duration))
+            print('{}: step {:5d}, loss = (G: {:.8f}, D: {:.8f}) ({:.3f} sec/batch)'.format(
+                datetime.now(), step, g_loss, d_loss, duration))
 
             # save generated images
             if step % 100 == 0:
