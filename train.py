@@ -47,13 +47,19 @@ def main(argv=None):
     dcgan = DCGAN(s_size=6)
     traindata = inputs(dcgan.batch_size, dcgan.s_size)
     losses = dcgan.loss(traindata)
+    # feature matching
+    graph = tf.get_default_graph()
+    features_g = tf.reduce_mean(graph.get_tensor_by_name('dg/d/conv4/outputs:0'), 0)
+    features_t = tf.reduce_mean(graph.get_tensor_by_name('dt/d/conv4/outputs:0'), 0)
+    losses[dcgan.g] += tf.multiply(tf.nn.l2_loss(features_g - features_t), 0.05)
+
     tf.summary.scalar('g loss', losses[dcgan.g])
     tf.summary.scalar('d loss', losses[dcgan.d])
-    train_op = dcgan.train(losses)
+    train_op = dcgan.train(losses, learning_rate=0.0001)
     summary_op = tf.summary.merge_all()
 
-    g_saver = tf.train.Saver(dcgan.g.variables)
-    d_saver = tf.train.Saver(dcgan.d.variables)
+    g_saver = tf.train.Saver(dcgan.g.variables, max_to_keep=15)
+    d_saver = tf.train.Saver(dcgan.d.variables, max_to_keep=15)
     g_checkpoint_path = os.path.join(FLAGS.logdir, 'g.ckpt')
     d_checkpoint_path = os.path.join(FLAGS.logdir, 'd.ckpt')
 
