@@ -8,7 +8,7 @@ generate faces by DCGAN.
 ### Prerequisits ###
 
 - Python >= 2.7 or 3.5
-- TensorFlow >= 0.9
+- TensorFlow >= 1.0
 
 
 ### Dependencies ###
@@ -28,8 +28,5 @@ generate faces by DCGAN.
 
 training:
 
-    $ python main.py
+    $ python train.py
 
-generating faces:
-
-    $ python main.py --is_train False
