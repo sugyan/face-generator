@@ -4,16 +4,16 @@
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.4.0",
+    "@testing-library/react": "^9.4.1",
     "@testing-library/user-event": "^7.2.1",
     "@types/jest": "^24.9.1",
-    "@types/node": "^12.12.27",
-    "@types/react": "^16.9.19",
+    "@types/node": "^12.12.28",
+    "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
     "react-scripts": "3.4.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.8.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -34,8 +34,8 @@
     ]
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^2.19.2",
-    "@typescript-eslint/parser": "^2.19.2",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-app": "^6.2.1"
