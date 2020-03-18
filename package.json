@@ -13,7 +13,7 @@
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
     "babel-eslint": "10.0.3",
-    "babel-jest": "^24.9.0",
+    "babel-jest": "^25.1.0",
     "babel-loader": "8.0.6",
     "babel-plugin-named-asset-import": "^0.3.6",
     "babel-preset-react-app": "^9.1.1",
@@ -33,7 +33,7 @@
     "fs-extra": "^8.1.0",
     "html-webpack-plugin": "4.0.0-beta.11",
     "identity-obj-proxy": "3.0.0",
-    "jest": "24.9.0",
+    "jest": "^25.1.0",
     "jest-environment-jsdom-fourteen": "1.0.1",
     "jest-resolve": "24.9.0",
     "jest-watch-typeahead": "0.4.2",
@@ -85,7 +85,8 @@
     "@typescript-eslint/parser": "^2.23.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.19.0",
-    "eslint-plugin-react-app": "^6.2.1"
+    "eslint-plugin-react-app": "^6.2.1",
+    "worker-loader": "^2.0.0"
   },
   "jest": {
     "roots": [
