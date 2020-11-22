@@ -32,6 +32,7 @@ module.exports = {
         "quotes": "warn",
         "semi": "warn",
         "react/jsx-indent": ["warn", 2],
+        "@typescript-eslint/explicit-member-accessibility": "warn",
         "@typescript-eslint/type-annotation-spacing": "warn",
     },
 };
