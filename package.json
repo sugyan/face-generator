@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@tensorflow/tfjs": "^3.6.0",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "eslint-config-prettier": "^8.1.0",
-    "prettier": "2.2.1"
+    "prettier": "2.2.1",
+    "worker-loader": "^3.0.8"
   }
 }
